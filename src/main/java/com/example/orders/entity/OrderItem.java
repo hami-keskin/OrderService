@@ -2,9 +2,12 @@ package com.example.orders.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @Entity
+@Table(name = "order_items")
 public class OrderItem {
 
     @Id
@@ -12,13 +15,10 @@ public class OrderItem {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id")
     private Order order;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
-
+    private Integer productId;
     private Integer quantity;
     private Double price;
 }

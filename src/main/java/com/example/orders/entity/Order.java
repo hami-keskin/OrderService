@@ -2,12 +2,15 @@ package com.example.orders.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @Entity
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -16,15 +19,8 @@ public class Order {
 
     private LocalDateTime orderDate;
     private String status;
+    private Integer customerId;
     private Double totalAmount;
-
-    @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
-
-    @ManyToOne
-    @JoinColumn(name = "shipping_address_id", nullable = false)
-    private ShippingAddress shippingAddress;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
