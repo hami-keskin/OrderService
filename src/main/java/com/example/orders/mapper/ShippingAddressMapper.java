@@ -1,7 +1,7 @@
-package com.example.order_service.mapper;
+package com.example.orders.mapper;
 
-import com.example.order_service.dto.ShippingAddressDto;
-import com.example.order_service.entity.ShippingAddress;
+import com.example.orders.dto.ShippingAddressDto;
+import com.example.orders.entity.ShippingAddress;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

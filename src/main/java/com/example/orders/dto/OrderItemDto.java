@@ -1,10 +1,12 @@
-package com.example.order_service.dto;
+package com.example.orders.dto;
 
 import lombok.Data;
 
 @Data
-public class StockDto {
+public class OrderItemDto {
     private Integer id;
+    private Integer orderId;
     private Integer productId;
     private Integer quantity;
+    private Double price;
 }

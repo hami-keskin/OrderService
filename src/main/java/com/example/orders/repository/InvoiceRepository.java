@@ -1,6 +1,6 @@
-package com.example.order_service.repository;
+package com.example.orders.repository;
 
-import com.example.order_service.entity.Invoice;
+import com.example.orders.entity.Invoice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
