@@ -2,15 +2,17 @@ package com.example.orders.controller;
 
 import com.example.orders.dto.OrderDto;
 import com.example.orders.service.OrderService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @GetMapping("/{id}")
     public OrderDto getOrderById(@PathVariable Integer id) {

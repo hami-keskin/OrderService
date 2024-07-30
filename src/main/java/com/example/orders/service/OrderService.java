@@ -4,7 +4,6 @@ import com.example.orders.dto.OrderDto;
 import com.example.orders.entity.Order;
 import com.example.orders.mapper.OrderMapper;
 import com.example.orders.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -14,8 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    private final OrderRepository orderRepository;
+
+    public OrderService(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
 
     @Cacheable("orders")
     public OrderDto getOrderById(Integer id) {

@@ -7,7 +7,6 @@ import com.example.orders.entity.OrderItem;
 import com.example.orders.mapper.OrderItemMapper;
 import com.example.orders.repository.OrderItemRepository;
 import com.example.orders.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,14 +18,17 @@ import java.util.Map;
 @Service
 public class OrderItemService {
 
-    @Autowired
-    private OrderItemRepository orderItemRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final OrderRepository orderRepository;
+    private final ProductClient productClient;
 
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private ProductClient productClient;
+    public OrderItemService(OrderItemRepository orderItemRepository,
+                            OrderRepository orderRepository,
+                            ProductClient productClient) {
+        this.orderItemRepository = orderItemRepository;
+        this.orderRepository = orderRepository;
+        this.productClient = productClient;
+    }
 
     @Cacheable("orderItems")
     public OrderItemDto getOrderItemById(Integer id) {
@@ -44,7 +46,8 @@ public class OrderItemService {
 
         OrderItem orderItem = OrderItemMapper.INSTANCE.toEntity(orderItemDto);
         orderItem.setPrice(price); // Feign Client ile alınan price değeri
-        Order order = orderRepository.findById(orderItemDto.getOrderId()).orElseThrow(() -> new RuntimeException("Order not found"));
+        Order order = orderRepository.findById(orderItemDto.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order not found"));
         orderItem.setOrder(order);
         return OrderItemMapper.INSTANCE.toDto(orderItemRepository.save(orderItem));
     }
@@ -53,7 +56,8 @@ public class OrderItemService {
     @CachePut(value = "orderItems", key = "#orderItemDto.id")
     public OrderItemDto updateOrderItem(OrderItemDto orderItemDto) {
         OrderItem orderItem = orderItemRepository.findById(orderItemDto.getId()).orElseThrow();
-        Order order = orderRepository.findById(orderItemDto.getOrderId()).orElseThrow(() -> new RuntimeException("Order not found"));
+        Order order = orderRepository.findById(orderItemDto.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order not found"));
         orderItem.setOrder(order);
 
         // Product ID'yi ve price'ı almak için Feign Client'ı kullan
