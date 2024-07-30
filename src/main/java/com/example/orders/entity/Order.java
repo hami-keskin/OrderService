@@ -17,7 +17,7 @@ public class Order {
 
     private Integer customerId;
 
-    private Integer shippingAddressId; // Nullable
+    private Integer shippingAddressId;
 
     private Double totalAmount;
 }
