@@ -11,12 +11,12 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/orders/1",
+          "raw": "http://localhost:9090/orders/1",
           "protocol": "http",
           "host": [
             "localhost"
           ],
-          "port": "8080",
+          "port": "9090",
           "path": [
             "orders",
             "1"
@@ -39,12 +39,12 @@
           "raw": "{\"orderDate\":\"2024-07-30T14:00:00\",\"status\":\"NEW\",\"totalAmount\":100.0,\"customerId\":1}"
         },
         "url": {
-          "raw": "http://localhost:8080/orders",
+          "raw": "http://localhost:9090/orders",
           "protocol": "http",
           "host": [
             "localhost"
           ],
-          "port": "8080",
+          "port": "9090",
           "path": [
             "orders"
           ]
@@ -66,12 +66,12 @@
           "raw": "{\"id\":1,\"orderDate\":\"2024-07-30T14:00:00\",\"status\":\"UPDATED\",\"totalAmount\":150.0,\"customerId\":1}"
         },
         "url": {
-          "raw": "http://localhost:8080/orders/1",
+          "raw": "http://localhost:9090/orders/1",
           "protocol": "http",
           "host": [
             "localhost"
           ],
-          "port": "8080",
+          "port": "9090",
           "path": [
             "orders",
             "1"
@@ -85,12 +85,12 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/orders/1",
+          "raw": "http://localhost:9090/orders/1",
           "protocol": "http",
           "host": [
             "localhost"
           ],
-          "port": "8080",
+          "port": "9090",
           "path": [
             "orders",
             "1"
@@ -104,12 +104,12 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/order-items/1",
+          "raw": "http://localhost:9090/order-items/1",
           "protocol": "http",
           "host": [
             "localhost"
           ],
-          "port": "8080",
+          "port": "9090",
           "path": [
             "order-items",
             "1"
@@ -129,15 +129,15 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"orderId\":1,\"productId\":1,\"quantity\":2,\"price\":50.0}"
+          "raw": "{\"orderId\":1,\"productId\":1,\"quantity\":2}"
         },
         "url": {
-          "raw": "http://localhost:8080/order-items",
+          "raw": "http://localhost:9090/order-items",
           "protocol": "http",
           "host": [
             "localhost"
           ],
-          "port": "8080",
+          "port": "9090",
           "path": [
             "order-items"
           ]
@@ -156,15 +156,15 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"id\":1,\"orderId\":1,\"productId\":1,\"quantity\":3,\"price\":60.0}"
+          "raw": "{\"id\":1,\"orderId\":1,\"productId\":1,\"quantity\":3}"
         },
         "url": {
-          "raw": "http://localhost:8080/order-items/1",
+          "raw": "http://localhost:9090/order-items/1",
           "protocol": "http",
           "host": [
             "localhost"
           ],
-          "port": "8080",
+          "port": "9090",
           "path": [
             "order-items",
             "1"
@@ -178,12 +178,12 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/order-items/1",
+          "raw": "http://localhost:9090/order-items/1",
           "protocol": "http",
           "host": [
             "localhost"
           ],
-          "port": "8080",
+          "port": "9090",
           "path": [
             "order-items",
             "1"

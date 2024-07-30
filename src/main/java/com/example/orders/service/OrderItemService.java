@@ -1,5 +1,6 @@
 package com.example.orders.service;
 
+import com.example.orders.client.ProductClient;
 import com.example.orders.dto.OrderItemDto;
 import com.example.orders.entity.Order;
 import com.example.orders.entity.OrderItem;
@@ -13,6 +14,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 @Service
 public class OrderItemService {
 
@@ -21,6 +24,9 @@ public class OrderItemService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductClient productClient;
 
     @Cacheable("orderItems")
     public OrderItemDto getOrderItemById(Integer id) {
@@ -32,7 +38,12 @@ public class OrderItemService {
     @Transactional
     @CachePut(value = "orderItems", key = "#orderItemDto.id")
     public OrderItemDto createOrderItem(OrderItemDto orderItemDto) {
+        // Product ID'yi ve price'ı almak için Feign Client'ı kullan
+        Map<String, Object> product = productClient.getProductById(orderItemDto.getProductId());
+        Double price = (Double) product.get("price");
+
         OrderItem orderItem = OrderItemMapper.INSTANCE.toEntity(orderItemDto);
+        orderItem.setPrice(price); // Feign Client ile alınan price değeri
         Order order = orderRepository.findById(orderItemDto.getOrderId()).orElseThrow(() -> new RuntimeException("Order not found"));
         orderItem.setOrder(order);
         return OrderItemMapper.INSTANCE.toDto(orderItemRepository.save(orderItem));
@@ -44,9 +55,14 @@ public class OrderItemService {
         OrderItem orderItem = orderItemRepository.findById(orderItemDto.getId()).orElseThrow();
         Order order = orderRepository.findById(orderItemDto.getOrderId()).orElseThrow(() -> new RuntimeException("Order not found"));
         orderItem.setOrder(order);
+
+        // Product ID'yi ve price'ı almak için Feign Client'ı kullan
+        Map<String, Object> product = productClient.getProductById(orderItemDto.getProductId());
+        Double price = (Double) product.get("price");
+
         orderItem.setProductId(orderItemDto.getProductId());
         orderItem.setQuantity(orderItemDto.getQuantity());
-        orderItem.setPrice(orderItemDto.getPrice());
+        orderItem.setPrice(price); // Feign Client ile alınan price değeri
         return OrderItemMapper.INSTANCE.toDto(orderItemRepository.save(orderItem));
     }
 
