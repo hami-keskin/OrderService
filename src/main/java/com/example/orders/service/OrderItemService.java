@@ -1,15 +1,17 @@
 package com.example.orders.service;
 
 import com.example.orders.dto.OrderItemDto;
+import com.example.orders.entity.Order;
 import com.example.orders.entity.OrderItem;
 import com.example.orders.mapper.OrderItemMapper;
 import com.example.orders.repository.OrderItemRepository;
+import com.example.orders.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderItemService {
@@ -18,48 +20,39 @@ public class OrderItemService {
     private OrderItemRepository orderItemRepository;
 
     @Autowired
-    private OrderItemMapper orderItemMapper;
+    private OrderRepository orderRepository;
 
     @Cacheable("orderItems")
-    public List<OrderItemDto> getAllOrderItems() {
-        return orderItemRepository.findAll().stream()
-                .map(orderItemMapper::toOrderItemDto)
-                .collect(Collectors.toList());
-    }
-
-    @Cacheable(value = "orderItems", key = "#id")
     public OrderItemDto getOrderItemById(Integer id) {
         return orderItemRepository.findById(id)
-                .map(orderItemMapper::toOrderItemDto)
+                .map(OrderItemMapper.INSTANCE::toDto)
                 .orElse(null);
     }
 
-    @CacheEvict(value = "orderItems", allEntries = true)
+    @Transactional
+    @CachePut(value = "orderItems", key = "#orderItemDto.id")
     public OrderItemDto createOrderItem(OrderItemDto orderItemDto) {
-        OrderItem orderItem = orderItemMapper.toOrderItem(orderItemDto);
-        orderItem = orderItemRepository.save(orderItem);
-        return orderItemMapper.toOrderItemDto(orderItem);
+        OrderItem orderItem = OrderItemMapper.INSTANCE.toEntity(orderItemDto);
+        Order order = orderRepository.findById(orderItemDto.getOrderId()).orElseThrow(() -> new RuntimeException("Order not found"));
+        orderItem.setOrder(order);
+        return OrderItemMapper.INSTANCE.toDto(orderItemRepository.save(orderItem));
     }
 
+    @Transactional
+    @CachePut(value = "orderItems", key = "#orderItemDto.id")
+    public OrderItemDto updateOrderItem(OrderItemDto orderItemDto) {
+        OrderItem orderItem = orderItemRepository.findById(orderItemDto.getId()).orElseThrow();
+        Order order = orderRepository.findById(orderItemDto.getOrderId()).orElseThrow(() -> new RuntimeException("Order not found"));
+        orderItem.setOrder(order);
+        orderItem.setProductId(orderItemDto.getProductId());
+        orderItem.setQuantity(orderItemDto.getQuantity());
+        orderItem.setPrice(orderItemDto.getPrice());
+        return OrderItemMapper.INSTANCE.toDto(orderItemRepository.save(orderItem));
+    }
+
+    @Transactional
     @CacheEvict(value = "orderItems", key = "#id")
-    public OrderItemDto updateOrderItem(Integer id, OrderItemDto orderItemDto) {
-        return orderItemRepository.findById(id)
-                .map(existingOrderItem -> {
-                    existingOrderItem.setOrderId(orderItemDto.getOrderId());
-                    existingOrderItem.setProductId(orderItemDto.getProductId());
-                    existingOrderItem.setQuantity(orderItemDto.getQuantity());
-                    existingOrderItem.setPrice(orderItemDto.getPrice());
-                    return orderItemMapper.toOrderItemDto(orderItemRepository.save(existingOrderItem));
-                })
-                .orElse(null);
-    }
-
-    @CacheEvict(value = "orderItems", allEntries = true)
-    public boolean deleteOrderItem(Integer id) {
-        if (orderItemRepository.existsById(id)) {
-            orderItemRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    public void deleteOrderItem(Integer id) {
+        orderItemRepository.deleteById(id);
     }
 }
