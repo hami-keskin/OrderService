@@ -2,12 +2,10 @@ package com.example.orders.service;
 
 import com.example.orders.dto.OrderItemDto;
 import com.example.orders.entity.OrderItem;
-import com.example.orders.entity.Order;
 import com.example.orders.mapper.OrderItemMapper;
 import com.example.orders.repository.OrderItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,38 +16,44 @@ public class OrderItemService {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
+    @Autowired
+    private OrderItemMapper orderItemMapper;
+
     public List<OrderItemDto> getAllOrderItems() {
         return orderItemRepository.findAll().stream()
-                .map(OrderItemMapper.INSTANCE::toDto)
+                .map(orderItemMapper::toOrderItemDto)
                 .collect(Collectors.toList());
     }
 
     public OrderItemDto getOrderItemById(Integer id) {
         return orderItemRepository.findById(id)
-                .map(OrderItemMapper.INSTANCE::toDto)
+                .map(orderItemMapper::toOrderItemDto)
                 .orElse(null);
     }
 
-    @Transactional
     public OrderItemDto createOrderItem(OrderItemDto orderItemDto) {
-        OrderItem orderItem = OrderItemMapper.INSTANCE.toEntity(orderItemDto);
-        return OrderItemMapper.INSTANCE.toDto(orderItemRepository.save(orderItem));
+        OrderItem orderItem = orderItemMapper.toOrderItem(orderItemDto);
+        orderItem = orderItemRepository.save(orderItem);
+        return orderItemMapper.toOrderItemDto(orderItem);
     }
 
-    @Transactional
     public OrderItemDto updateOrderItem(Integer id, OrderItemDto orderItemDto) {
-        OrderItem orderItem = orderItemRepository.findById(id).orElseThrow();
-        Order order = new Order();
-        order.setId(orderItemDto.getOrderId());
-        orderItem.setOrder(order);
-        orderItem.setProductId(orderItemDto.getProductId());
-        orderItem.setQuantity(orderItemDto.getQuantity());
-        orderItem.setPrice(orderItemDto.getPrice());
-        return OrderItemMapper.INSTANCE.toDto(orderItemRepository.save(orderItem));
+        return orderItemRepository.findById(id)
+                .map(existingOrderItem -> {
+                    existingOrderItem.setOrderId(orderItemDto.getOrderId());
+                    existingOrderItem.setProductId(orderItemDto.getProductId());
+                    existingOrderItem.setQuantity(orderItemDto.getQuantity());
+                    existingOrderItem.setPrice(orderItemDto.getPrice());
+                    return orderItemMapper.toOrderItemDto(orderItemRepository.save(existingOrderItem));
+                })
+                .orElse(null);
     }
 
-    @Transactional
-    public void deleteOrderItem(Integer id) {
-        orderItemRepository.deleteById(id);
+    public boolean deleteOrderItem(Integer id) {
+        if (orderItemRepository.existsById(id)) {
+            orderItemRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

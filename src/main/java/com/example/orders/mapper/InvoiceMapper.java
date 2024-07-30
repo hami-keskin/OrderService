@@ -3,12 +3,12 @@ package com.example.orders.mapper;
 import com.example.orders.dto.InvoiceDto;
 import com.example.orders.entity.Invoice;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
-@Mapper
+import java.util.List;
+
+@Mapper(componentModel = "spring")
 public interface InvoiceMapper {
-    InvoiceMapper INSTANCE = Mappers.getMapper(InvoiceMapper.class);
-
-    InvoiceDto toDto(Invoice invoice);
-    Invoice toEntity(InvoiceDto invoiceDto);
+    InvoiceDto toInvoiceDto(Invoice invoice);
+    Invoice toInvoice(InvoiceDto invoiceDto);
+    List<InvoiceDto> toInvoiceDtos(List<Invoice> invoices);
 }

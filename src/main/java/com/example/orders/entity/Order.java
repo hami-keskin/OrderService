@@ -1,27 +1,23 @@
 package com.example.orders.entity;
 
-import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Data
-@NoArgsConstructor
 @Entity
-@Table(name = "orders")
+@Data
 public class Order {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private LocalDateTime orderDate;
-    private String status;
-    private Integer customerId;
-    private Double totalAmount;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderItem> orderItems;
+    private String status;
+
+    private Integer customerId;
+
+    private Integer shippingAddressId; // Nullable
+
+    private Double totalAmount;
 }

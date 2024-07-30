@@ -3,12 +3,12 @@ package com.example.orders.mapper;
 import com.example.orders.dto.OrderItemDto;
 import com.example.orders.entity.OrderItem;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
-@Mapper
+import java.util.List;
+
+@Mapper(componentModel = "spring")
 public interface OrderItemMapper {
-    OrderItemMapper INSTANCE = Mappers.getMapper(OrderItemMapper.class);
-
-    OrderItemDto toDto(OrderItem orderItem);
-    OrderItem toEntity(OrderItemDto orderItemDto);
+    OrderItemDto toOrderItemDto(OrderItem orderItem);
+    OrderItem toOrderItem(OrderItemDto orderItemDto);
+    List<OrderItemDto> toOrderItemDtos(List<OrderItem> orderItems);
 }

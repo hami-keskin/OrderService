@@ -1,25 +1,19 @@
 package com.example.orders.entity;
 
-import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
 @Entity
-@Table(name = "invoices")
+@Data
 public class Invoice {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
+    private Integer orderId;
 
     private LocalDateTime invoiceDate;
+
     private Double totalAmount;
 }

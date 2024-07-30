@@ -3,6 +3,7 @@ package com.example.orders.controller;
 import com.example.orders.dto.OrderDto;
 import com.example.orders.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,27 +16,43 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public List<OrderDto> getAllOrders() {
-        return orderService.getAllOrders();
+    public ResponseEntity<List<OrderDto>> getAllOrders() {
+        List<OrderDto> orders = orderService.getAllOrders();
+        return ResponseEntity.ok(orders);
     }
 
     @GetMapping("/{id}")
-    public OrderDto getOrderById(@PathVariable Integer id) {
-        return orderService.getOrderById(id);
+    public ResponseEntity<OrderDto> getOrderById(@PathVariable Integer id) {
+        OrderDto order = orderService.getOrderById(id);
+        if (order != null) {
+            return ResponseEntity.ok(order);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
-    public OrderDto createOrder(@RequestBody OrderDto orderDto) {
-        return orderService.createOrder(orderDto);
+    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto) {
+        OrderDto createdOrder = orderService.createOrder(orderDto);
+        return ResponseEntity.ok(createdOrder);
     }
 
     @PutMapping("/{id}")
-    public OrderDto updateOrder(@PathVariable Integer id, @RequestBody OrderDto orderDto) {
-        return orderService.updateOrder(id, orderDto);
+    public ResponseEntity<OrderDto> updateOrder(@PathVariable Integer id, @RequestBody OrderDto orderDto) {
+        OrderDto updatedOrder = orderService.updateOrder(id, orderDto);
+        if (updatedOrder != null) {
+            return ResponseEntity.ok(updatedOrder);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteOrder(@PathVariable Integer id) {
-        orderService.deleteOrder(id);
+    public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
+        if (orderService.deleteOrder(id)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
