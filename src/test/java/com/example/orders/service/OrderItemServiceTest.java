@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,9 +42,8 @@ public class OrderItemServiceTest {
     @Test
     public void testGetOrderItemById_Success() {
         // Given
-        OrderItem orderItem = new OrderItem();
-        orderItem.setId(1);
-        OrderItemDto orderItemDto = OrderItemMapper.INSTANCE.toDto(orderItem);
+        OrderItem orderItem = TestData.createOrderItem();
+        OrderItemDto orderItemDto = TestData.createOrderItemDto();
         when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
 
         // When
@@ -70,16 +68,10 @@ public class OrderItemServiceTest {
     @Transactional
     public void testCreateOrderItem() {
         // Given
-        OrderItemDto orderItemDto = new OrderItemDto();
-        orderItemDto.setProductId(1);
-        orderItemDto.setOrderId(1);
-        orderItemDto.setQuantity(2);
-        Map<String, Object> product = new HashMap<>();
-        product.put("price", 50.0);
-        Order order = new Order();
-        order.setId(1);
-        OrderItem orderItem = OrderItemMapper.INSTANCE.toEntity(orderItemDto);
-        orderItem.setPrice(50.0);
+        OrderItemDto orderItemDto = TestData.createOrderItemDto();
+        OrderItem orderItem = TestData.createOrderItem();
+        Map<String, Object> product = TestData.createProduct();
+        Order order = TestData.createOrder();
         when(productClient.getProductById(1)).thenReturn(product);
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
@@ -99,17 +91,10 @@ public class OrderItemServiceTest {
     @Transactional
     public void testUpdateOrderItem() {
         // Given
-        OrderItemDto orderItemDto = new OrderItemDto();
-        orderItemDto.setId(1);
-        orderItemDto.setProductId(1);
-        orderItemDto.setOrderId(1);
-        orderItemDto.setQuantity(3);
-        Map<String, Object> product = new HashMap<>();
-        product.put("price", 60.0);
-        OrderItem orderItem = new OrderItem();
-        orderItem.setId(1);
-        Order order = new Order();
-        order.setId(1);
+        OrderItemDto orderItemDto = TestData.createOrderItemDto();
+        OrderItem orderItem = TestData.createOrderItem();
+        Map<String, Object> product = TestData.createProduct();
+        Order order = TestData.createOrder();
         when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(productClient.getProductById(1)).thenReturn(product);
@@ -124,7 +109,7 @@ public class OrderItemServiceTest {
         verify(productClient).getProductById(1);
         verify(orderItemRepository).save(orderItem);
         assertEquals(orderItemDto.getQuantity(), result.getQuantity());
-        assertEquals(60.0, result.getPrice());
+        assertEquals(50.0, result.getPrice());
     }
 
     @Test
@@ -140,9 +125,7 @@ public class OrderItemServiceTest {
     @Test
     public void testCreateOrderItem_ProductNotFound() {
         // Given
-        OrderItemDto orderItemDto = new OrderItemDto();
-        orderItemDto.setProductId(1);
-        orderItemDto.setOrderId(1);
+        OrderItemDto orderItemDto = TestData.createOrderItemDto();
         when(productClient.getProductById(1)).thenReturn(null);
 
         // When & Then
@@ -152,10 +135,7 @@ public class OrderItemServiceTest {
     @Test
     public void testUpdateOrderItem_OrderNotFound() {
         // Given
-        OrderItemDto orderItemDto = new OrderItemDto();
-        orderItemDto.setId(1);
-        orderItemDto.setProductId(1);
-        orderItemDto.setOrderId(1);
+        OrderItemDto orderItemDto = TestData.createOrderItemDto();
         when(orderItemRepository.findById(1)).thenReturn(Optional.empty());
 
         // When & Then

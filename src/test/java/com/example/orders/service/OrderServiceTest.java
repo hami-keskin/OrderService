@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,9 +32,8 @@ public class OrderServiceTest {
     @Test
     public void testGetOrderById_Success() {
         // Given
-        Order order = new Order();
-        order.setId(1);
-        OrderDto orderDto = OrderMapper.INSTANCE.toDto(order);
+        Order order = TestData.createOrder();
+        OrderDto orderDto = TestData.createOrderDto();
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
 
         // When
@@ -60,13 +58,8 @@ public class OrderServiceTest {
     @Transactional
     public void testCreateOrder() {
         // Given
-        OrderDto orderDto = new OrderDto();
-        orderDto.setId(1);
-        orderDto.setOrderDate(LocalDateTime.now());
-        orderDto.setStatus("PENDING");
-        orderDto.setTotalAmount(100.0);
-        orderDto.setCustomerId(1);
-        Order order = OrderMapper.INSTANCE.toEntity(orderDto);
+        OrderDto orderDto = TestData.createOrderDto();
+        Order order = TestData.createOrder();
         when(orderRepository.save(order)).thenReturn(order);
 
         // When
@@ -82,14 +75,8 @@ public class OrderServiceTest {
     @Transactional
     public void testUpdateOrder() {
         // Given
-        OrderDto orderDto = new OrderDto();
-        orderDto.setId(1);
-        orderDto.setOrderDate(LocalDateTime.now());
-        orderDto.setStatus("SHIPPED");
-        orderDto.setTotalAmount(150.0);
-        orderDto.setCustomerId(1);
-        Order order = new Order();
-        order.setId(1);
+        OrderDto orderDto = TestData.createOrderDto();
+        Order order = TestData.createOrder();
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(orderRepository.save(order)).thenReturn(order);
 
