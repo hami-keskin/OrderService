@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -29,77 +28,63 @@ public class OrderServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    private OrderDto createOrderDto() {
+        return TestData.createOrderDto();
+    }
+
+    private Order createOrder() {
+        return TestData.createOrder();
+    }
+
     @Test
     public void testGetOrderById_Success() {
-        // Given
-        Order order = TestData.createOrder();
-        OrderDto orderDto = TestData.createOrderDto();
+        var order = createOrder();
+        var orderDto = createOrderDto();
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
 
-        // When
-        OrderDto result = orderService.getOrderById(1);
+        var result = orderService.getOrderById(1);
 
-        // Then
         verify(orderRepository).findById(1);
-        assertEquals(orderDto.getId(), result.getId());
-        assertEquals(orderDto.getStatus(), result.getStatus());
-        assertEquals(orderDto.getTotalAmount(), result.getTotalAmount());
+        assertEquals(orderDto, result);
     }
 
     @Test
     public void testGetOrderById_NotFound() {
-        // Given
         when(orderRepository.findById(1)).thenReturn(Optional.empty());
 
-        // When & Then
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> orderService.getOrderById(1));
-        assertEquals("Order not found", thrown.getMessage());
+        var exception = assertThrows(RuntimeException.class, () -> orderService.getOrderById(1));
+        assertEquals("Order not found", exception.getMessage());
     }
 
     @Test
-    @Transactional
     public void testCreateOrder() {
-        // Given
-        OrderDto orderDto = TestData.createOrderDto();
-        Order order = TestData.createOrder();
+        var orderDto = createOrderDto();
+        var order = createOrder();
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
-        // When
-        OrderDto result = orderService.createOrder(orderDto);
+        var result = orderService.createOrder(orderDto);
 
-        // Then
         verify(orderRepository).save(any(Order.class));
-        assertEquals(orderDto.getId(), result.getId());
-        assertEquals(orderDto.getStatus(), result.getStatus());
-        assertEquals(orderDto.getTotalAmount(), result.getTotalAmount());
+        assertEquals(orderDto, result);
     }
 
     @Test
-    @Transactional
     public void testUpdateOrder() {
-        // Given
-        OrderDto orderDto = TestData.createOrderDto();
-        Order order = TestData.createOrder();
+        var orderDto = createOrderDto();
+        var order = createOrder();
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
-        // When
-        OrderDto result = orderService.updateOrder(orderDto);
+        var result = orderService.updateOrder(orderDto);
 
-        // Then
         verify(orderRepository).findById(1);
         verify(orderRepository).save(any(Order.class));
-        assertEquals(orderDto.getStatus(), result.getStatus());
-        assertEquals(orderDto.getTotalAmount(), result.getTotalAmount());
+        assertEquals(orderDto, result);
     }
 
     @Test
-    @Transactional
     public void testDeleteOrder() {
-        // When
         orderService.deleteOrder(1);
-
-        // Then
         verify(orderRepository).deleteById(1);
     }
 }
