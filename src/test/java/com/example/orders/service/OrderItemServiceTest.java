@@ -139,4 +139,37 @@ public class OrderItemServiceTest {
         // When & Then
         assertThrows(RuntimeException.class, () -> orderItemService.updateOrderItem(orderItemDto));
     }
+
+    @Test
+    public void testCreateOrderItem_WithInvalidData() {
+        // Given
+        OrderItemDto invalidOrderItemDto = new OrderItemDto(); // Boş veya geçersiz veriler
+        when(productClient.getProductById(1)).thenReturn(product);
+        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> orderItemService.createOrderItem(invalidOrderItemDto));
+    }
+
+    @Test
+    public void testUpdateOrderItem_WithInvalidData() {
+        // Given
+        OrderItemDto invalidOrderItemDto = new OrderItemDto(); // Boş veya geçersiz veriler
+        when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
+        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+        when(productClient.getProductById(1)).thenReturn(product);
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> orderItemService.updateOrderItem(invalidOrderItemDto));
+    }
+
+    @Test
+    public void testCreateOrderItem_ProductClientError() {
+        // Given
+        when(productClient.getProductById(1)).thenThrow(new RuntimeException("Product client error"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> orderItemService.createOrderItem(orderItemDto));
+    }
+
 }
