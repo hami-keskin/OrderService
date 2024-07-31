@@ -56,26 +56,32 @@ public class OrderItemServiceTest {
 
     @Test
     public void testGetOrderItemById_Success() {
+        // Given
         var orderItem = createOrderItem();
         var orderItemDto = createOrderItemDto();
         when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
 
+        // When
         var result = orderItemService.getOrderItemById(1);
 
-        verify(orderItemRepository).findById(1);
+        // Then
         assertEquals(orderItemDto, result);
+        verify(orderItemRepository).findById(1);
     }
 
     @Test
     public void testGetOrderItemById_NotFound() {
+        // Given
         when(orderItemRepository.findById(1)).thenReturn(Optional.empty());
 
+        // When & Then
         var exception = assertThrows(RuntimeException.class, () -> orderItemService.getOrderItemById(1));
         assertEquals("Order item not found", exception.getMessage());
     }
 
     @Test
     public void testCreateOrderItem() {
+        // Given
         var orderItemDto = createOrderItemDto();
         var orderItem = createOrderItem();
         var product = createProduct();
@@ -85,17 +91,20 @@ public class OrderItemServiceTest {
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
 
+        // When
         var result = orderItemService.createOrderItem(orderItemDto);
 
+        // Then
+        assertEquals(orderItemDto.getQuantity(), result.getQuantity());
+        assertEquals(50.0, result.getPrice());
         verify(productClient).getProductById(1);
         verify(orderRepository).findById(1);
         verify(orderItemRepository).save(any(OrderItem.class));
-        assertEquals(orderItemDto.getQuantity(), result.getQuantity());
-        assertEquals(50.0, result.getPrice());
     }
 
     @Test
     public void testUpdateOrderItem() {
+        // Given
         var orderItemDto = createOrderItemDto();
         var orderItem = createOrderItem();
         var product = createProduct();
@@ -106,35 +115,44 @@ public class OrderItemServiceTest {
         when(productClient.getProductById(1)).thenReturn(product);
         when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
 
+        // When
         var result = orderItemService.updateOrderItem(orderItemDto);
 
+        // Then
+        assertEquals(orderItemDto.getQuantity(), result.getQuantity());
+        assertEquals(50.0, result.getPrice());
         verify(orderItemRepository).findById(1);
         verify(orderRepository).findById(1);
         verify(productClient).getProductById(1);
         verify(orderItemRepository).save(any(OrderItem.class));
-        assertEquals(orderItemDto.getQuantity(), result.getQuantity());
-        assertEquals(50.0, result.getPrice());
     }
 
     @Test
     public void testDeleteOrderItem() {
+        // When
         orderItemService.deleteOrderItem(1);
+
+        // Then
         verify(orderItemRepository).deleteById(1);
     }
 
     @Test
     public void testCreateOrderItem_ProductNotFound() {
+        // Given
         var orderItemDto = createOrderItemDto();
         when(productClient.getProductById(1)).thenReturn(null);
 
+        // When & Then
         assertThrows(RuntimeException.class, () -> orderItemService.createOrderItem(orderItemDto));
     }
 
     @Test
     public void testUpdateOrderItem_OrderNotFound() {
+        // Given
         var orderItemDto = createOrderItemDto();
         when(orderItemRepository.findById(1)).thenReturn(Optional.empty());
 
+        // When & Then
         assertThrows(RuntimeException.class, () -> orderItemService.updateOrderItem(orderItemDto));
     }
 }

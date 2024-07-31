@@ -38,53 +38,67 @@ public class OrderServiceTest {
 
     @Test
     public void testGetOrderById_Success() {
+        // Given
         var order = createOrder();
         var orderDto = createOrderDto();
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
 
+        // When
         var result = orderService.getOrderById(1);
 
-        verify(orderRepository).findById(1);
+        // Then
         assertEquals(orderDto, result);
+        verify(orderRepository).findById(1);
     }
 
     @Test
     public void testGetOrderById_NotFound() {
+        // Given
         when(orderRepository.findById(1)).thenReturn(Optional.empty());
 
+        // When & Then
         var exception = assertThrows(RuntimeException.class, () -> orderService.getOrderById(1));
         assertEquals("Order not found", exception.getMessage());
     }
 
     @Test
     public void testCreateOrder() {
+        // Given
         var orderDto = createOrderDto();
         var order = createOrder();
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
+        // When
         var result = orderService.createOrder(orderDto);
 
-        verify(orderRepository).save(any(Order.class));
+        // Then
         assertEquals(orderDto, result);
+        verify(orderRepository).save(any(Order.class));
     }
 
     @Test
     public void testUpdateOrder() {
+        // Given
         var orderDto = createOrderDto();
         var order = createOrder();
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
+        // When
         var result = orderService.updateOrder(orderDto);
 
+        // Then
+        assertEquals(orderDto, result);
         verify(orderRepository).findById(1);
         verify(orderRepository).save(any(Order.class));
-        assertEquals(orderDto, result);
     }
 
     @Test
     public void testDeleteOrder() {
+        // When
         orderService.deleteOrder(1);
+
+        // Then
         verify(orderRepository).deleteById(1);
     }
 }
