@@ -4,9 +4,9 @@ import com.example.orders.client.ProductClient;
 import com.example.orders.dto.OrderItemDto;
 import com.example.orders.entity.Order;
 import com.example.orders.entity.OrderItem;
-import com.example.orders.mapper.OrderItemMapper;
 import com.example.orders.repository.OrderItemRepository;
 import com.example.orders.repository.OrderRepository;
+import com.example.orders.util.TestDataOrderItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,25 +46,9 @@ public class OrderItemServiceTest {
 
     @BeforeEach
     void setUp() {
-        order = new Order();
-        order.setId(1);
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus("NEW");
-        order.setTotalAmount(100.0);
-        order.setCustomerId(1);
-
-        orderItem = new OrderItem();
-        orderItem.setId(1);
-        orderItem.setProductId(1);
-        orderItem.setQuantity(1);
-        orderItem.setPrice(100.0);
-        orderItem.setOrder(order);
-
-        orderItemDto = new OrderItemDto();
-        orderItemDto.setId(1);
-        orderItemDto.setProductId(1);
-        orderItemDto.setQuantity(1);
-        orderItemDto.setOrderId(1);
+        order = TestDataOrderItem.createOrder();
+        orderItem = TestDataOrderItem.createOrderItem(order);
+        orderItemDto = TestDataOrderItem.createOrderItemDto();
     }
 
     @Test

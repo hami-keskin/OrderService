@@ -2,8 +2,8 @@ package com.example.orders.service;
 
 import com.example.orders.dto.OrderDto;
 import com.example.orders.entity.Order;
-import com.example.orders.mapper.OrderMapper;
 import com.example.orders.repository.OrderRepository;
+import com.example.orders.util.TestDataOrder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,19 +35,8 @@ public class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-        order = new Order();
-        order.setId(1);
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus("NEW");
-        order.setTotalAmount(100.0);
-        order.setCustomerId(1);
-
-        orderDto = new OrderDto();
-        orderDto.setId(1);
-        orderDto.setOrderDate(LocalDateTime.now());
-        orderDto.setStatus("NEW");
-        orderDto.setTotalAmount(100.0);
-        orderDto.setCustomerId(1);
+        order = TestDataOrder.createOrder();
+        orderDto = TestDataOrder.createOrderDto();
     }
 
     @Test
