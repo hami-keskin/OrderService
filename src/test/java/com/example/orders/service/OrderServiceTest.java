@@ -97,4 +97,32 @@ public class OrderServiceTest {
         // Then
         verify(orderRepository).deleteById(1);
     }
+
+    @Test
+    public void testCreateOrder_FailedSave() {
+        // Given
+        when(orderRepository.save(any(Order.class))).thenThrow(new RuntimeException("Save failed"));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> orderService.createOrder(orderDto));
+    }
+
+    @Test
+    public void testUpdateOrder_OrderNotFound() {
+        // Given
+        when(orderRepository.findById(1)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> orderService.updateOrder(orderDto));
+    }
+
+    @Test
+    public void testUpdateOrder_WithInvalidData() {
+        // Given
+        OrderDto invalidOrderDto = new OrderDto(); // Boş veya geçersiz veriler
+        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> orderService.updateOrder(invalidOrderDto));
+    }
 }
