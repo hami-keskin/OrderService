@@ -4,40 +4,48 @@ import com.example.orders.dto.OrderDto;
 import com.example.orders.dto.OrderItemDto;
 import com.example.orders.entity.Order;
 import com.example.orders.entity.OrderItem;
-import com.example.orders.mapper.OrderMapper;
 import com.example.orders.mapper.OrderItemMapper;
+import com.example.orders.mapper.OrderMapper;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TestData {
-    public static Order createOrder() {
+
+    public static Order createOrder(Integer id, LocalDateTime orderDate, String status, Double totalAmount, Integer customerId, List<OrderItem> orderItems) {
         Order order = new Order();
-        order.setId(1);
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus("PENDING");
-        order.setTotalAmount(100.0);
-        order.setCustomerId(1);
+        order.setId(id);
+        order.setOrderDate(orderDate);
+        order.setStatus(status);
+        order.setTotalAmount(totalAmount);
+        order.setCustomerId(customerId);
+        order.setOrderItems(orderItems);
         return order;
     }
 
-    public static OrderDto createOrderDto() {
-        return OrderMapper.INSTANCE.toDto(createOrder());
-    }
-
-    public static OrderItem createOrderItem() {
+    public static OrderItem createOrderItem(Integer id, Integer productId, Integer quantity, Double price, Order order) {
         OrderItem orderItem = new OrderItem();
-        orderItem.setId(1);
-        orderItem.setProductId(1);
-        orderItem.setQuantity(2);
-        orderItem.setPrice(50.0);
-        orderItem.setOrder(createOrder());
+        orderItem.setId(id);
+        orderItem.setProductId(productId);
+        orderItem.setQuantity(quantity);
+        orderItem.setPrice(price);
+        orderItem.setOrder(order);
         return orderItem;
     }
 
+    public static OrderDto createOrderDto() {
+        Order order = createOrder(1, LocalDateTime.now(), "NEW", 100.0, 1, null);
+        return OrderMapper.INSTANCE.toDto(order);
+    }
+
     public static OrderItemDto createOrderItemDto() {
-        return OrderItemMapper.INSTANCE.toDto(createOrderItem());
+        Order order = createOrder(1, LocalDateTime.now(), "NEW", 100.0, 1, null);
+        OrderItem orderItem = createOrderItem(1, 1, 2, 50.0, order);
+        OrderItemDto orderItemDto = OrderItemMapper.INSTANCE.toDto(orderItem);
+        orderItemDto.setOrderId(order.getId()); // Ensure orderId is set
+        return orderItemDto;
     }
 
     public static Map<String, Object> createProduct() {

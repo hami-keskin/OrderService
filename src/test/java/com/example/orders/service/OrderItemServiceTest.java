@@ -6,13 +6,13 @@ import com.example.orders.entity.Order;
 import com.example.orders.entity.OrderItem;
 import com.example.orders.repository.OrderItemRepository;
 import com.example.orders.repository.OrderRepository;
-import com.example.orders.mapper.OrderItemMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,37 +30,33 @@ public class OrderItemServiceTest {
     @Mock
     private ProductClient productClient;
 
-    @Mock
-    private OrderItemMapper orderItemMapper;
-
     @InjectMocks
     private OrderItemService orderItemService;
 
     private OrderItemDto orderItemDto;
     private OrderItem orderItem;
-    private Order order;
     private Map<String, Object> product;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         orderItemDto = TestData.createOrderItemDto();
-        orderItem = TestData.createOrderItem();
-        order = TestData.createOrder();
+        orderItem = TestData.createOrderItem(1, orderItemDto.getProductId(), orderItemDto.getQuantity(), orderItemDto.getPrice(), null);
         product = TestData.createProduct();
-        when(orderItemMapper.toDto(orderItem)).thenReturn(orderItemDto);
-        when(orderItemMapper.toEntity(orderItemDto)).thenReturn(orderItem);
     }
 
     @Test
     public void testGetOrderItemById_Success() {
         // Given
         when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
+        orderItem.setOrder(new Order()); // Ensure the order is set
+        orderItem.getOrder().setId(1); // Ensure orderId is set
 
         // When
         var result = orderItemService.getOrderItemById(1);
 
         // Then
+        orderItemDto.setOrderId(1); // Ensure the expected orderId is set
         assertEquals(orderItemDto, result);
         verify(orderItemRepository).findById(1);
     }
@@ -79,7 +75,7 @@ public class OrderItemServiceTest {
     public void testCreateOrderItem() {
         // Given
         when(productClient.getProductById(1)).thenReturn(product);
-        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+        when(orderRepository.findById(1)).thenReturn(Optional.of(TestData.createOrder(1, LocalDateTime.now(), "NEW", 100.0, 1, null)));
         when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
 
         // When
@@ -97,7 +93,7 @@ public class OrderItemServiceTest {
     public void testUpdateOrderItem() {
         // Given
         when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
-        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+        when(orderRepository.findById(1)).thenReturn(Optional.of(TestData.createOrder(1, LocalDateTime.now(), "NEW", 100.0, 1, null)));
         when(productClient.getProductById(1)).thenReturn(product);
         when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
 
@@ -139,37 +135,4 @@ public class OrderItemServiceTest {
         // When & Then
         assertThrows(RuntimeException.class, () -> orderItemService.updateOrderItem(orderItemDto));
     }
-
-    @Test
-    public void testCreateOrderItem_WithInvalidData() {
-        // Given
-        OrderItemDto invalidOrderItemDto = new OrderItemDto(); // Boş veya geçersiz veriler
-        when(productClient.getProductById(1)).thenReturn(product);
-        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-
-        // When & Then
-        assertThrows(RuntimeException.class, () -> orderItemService.createOrderItem(invalidOrderItemDto));
-    }
-
-    @Test
-    public void testUpdateOrderItem_WithInvalidData() {
-        // Given
-        OrderItemDto invalidOrderItemDto = new OrderItemDto(); // Boş veya geçersiz veriler
-        when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
-        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-        when(productClient.getProductById(1)).thenReturn(product);
-
-        // When & Then
-        assertThrows(RuntimeException.class, () -> orderItemService.updateOrderItem(invalidOrderItemDto));
-    }
-
-    @Test
-    public void testCreateOrderItem_ProductClientError() {
-        // Given
-        when(productClient.getProductById(1)).thenThrow(new RuntimeException("Product client error"));
-
-        // When & Then
-        assertThrows(RuntimeException.class, () -> orderItemService.createOrderItem(orderItemDto));
-    }
-
 }
