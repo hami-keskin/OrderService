@@ -28,19 +28,11 @@ public class OrderServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    private OrderDto createOrderDto() {
-        return TestData.createOrderDto();
-    }
-
-    private Order createOrder() {
-        return TestData.createOrder();
-    }
-
     @Test
     public void testGetOrderById_Success() {
         // Given
-        var order = createOrder();
-        var orderDto = createOrderDto();
+        var order = TestData.createOrder();
+        var orderDto = TestData.createOrderDto();
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
 
         // When
@@ -64,8 +56,8 @@ public class OrderServiceTest {
     @Test
     public void testCreateOrder() {
         // Given
-        var orderDto = createOrderDto();
-        var order = createOrder();
+        var orderDto = TestData.createOrderDto();
+        var order = TestData.createOrder();
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         // When
@@ -79,8 +71,8 @@ public class OrderServiceTest {
     @Test
     public void testUpdateOrder() {
         // Given
-        var orderDto = createOrderDto();
-        var order = createOrder();
+        var orderDto = TestData.createOrderDto();
+        var order = TestData.createOrder();
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
