@@ -2,8 +2,8 @@ package com.example.orders.service;
 
 import com.example.orders.dto.OrderDto;
 import com.example.orders.entity.Order;
-import com.example.orders.mapper.OrderMapper;
 import com.example.orders.repository.OrderRepository;
+import com.example.orders.mapper.OrderMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,6 +20,9 @@ public class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private OrderMapper orderMapper;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -31,6 +34,8 @@ public class OrderServiceTest {
         MockitoAnnotations.openMocks(this);
         orderDto = TestData.createOrderDto();
         order = TestData.createOrder();
+        when(orderMapper.toDto(order)).thenReturn(orderDto);
+        when(orderMapper.toEntity(orderDto)).thenReturn(order);
     }
 
     @Test

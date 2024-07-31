@@ -4,9 +4,9 @@ import com.example.orders.client.ProductClient;
 import com.example.orders.dto.OrderItemDto;
 import com.example.orders.entity.Order;
 import com.example.orders.entity.OrderItem;
-import com.example.orders.mapper.OrderItemMapper;
 import com.example.orders.repository.OrderItemRepository;
 import com.example.orders.repository.OrderRepository;
+import com.example.orders.mapper.OrderItemMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -30,6 +30,9 @@ public class OrderItemServiceTest {
     @Mock
     private ProductClient productClient;
 
+    @Mock
+    private OrderItemMapper orderItemMapper;
+
     @InjectMocks
     private OrderItemService orderItemService;
 
@@ -45,6 +48,8 @@ public class OrderItemServiceTest {
         orderItem = TestData.createOrderItem();
         order = TestData.createOrder();
         product = TestData.createProduct();
+        when(orderItemMapper.toDto(orderItem)).thenReturn(orderItemDto);
+        when(orderItemMapper.toEntity(orderItemDto)).thenReturn(orderItem);
     }
 
     @Test
