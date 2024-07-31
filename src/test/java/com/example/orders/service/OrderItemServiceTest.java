@@ -33,16 +33,23 @@ public class OrderItemServiceTest {
     @InjectMocks
     private OrderItemService orderItemService;
 
+    private OrderItemDto orderItemDto;
+    private OrderItem orderItem;
+    private Order order;
+    private Map<String, Object> product;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        orderItemDto = TestData.createOrderItemDto();
+        orderItem = TestData.createOrderItem();
+        order = TestData.createOrder();
+        product = TestData.createProduct();
     }
 
     @Test
     public void testGetOrderItemById_Success() {
         // Given
-        var orderItem = TestData.createOrderItem();
-        var orderItemDto = TestData.createOrderItemDto();
         when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
 
         // When
@@ -66,11 +73,6 @@ public class OrderItemServiceTest {
     @Test
     public void testCreateOrderItem() {
         // Given
-        var orderItemDto = TestData.createOrderItemDto();
-        var orderItem = TestData.createOrderItem();
-        var product = TestData.createProduct();
-        var order = TestData.createOrder();
-
         when(productClient.getProductById(1)).thenReturn(product);
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
@@ -89,11 +91,6 @@ public class OrderItemServiceTest {
     @Test
     public void testUpdateOrderItem() {
         // Given
-        var orderItemDto = TestData.createOrderItemDto();
-        var orderItem = TestData.createOrderItem();
-        var product = TestData.createProduct();
-        var order = TestData.createOrder();
-
         when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(productClient.getProductById(1)).thenReturn(product);
@@ -123,7 +120,6 @@ public class OrderItemServiceTest {
     @Test
     public void testCreateOrderItem_ProductNotFound() {
         // Given
-        var orderItemDto = TestData.createOrderItemDto();
         when(productClient.getProductById(1)).thenReturn(null);
 
         // When & Then
@@ -133,7 +129,6 @@ public class OrderItemServiceTest {
     @Test
     public void testUpdateOrderItem_OrderNotFound() {
         // Given
-        var orderItemDto = TestData.createOrderItemDto();
         when(orderItemRepository.findById(1)).thenReturn(Optional.empty());
 
         // When & Then
