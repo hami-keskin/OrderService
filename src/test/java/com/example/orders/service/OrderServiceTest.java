@@ -31,7 +31,7 @@ public class OrderServiceTest {
     }
 
     @Test
-    public void testGetOrderById() {
+    public void testGetOrderById_Success() {
         // Given
         Order order = new Order();
         order.setId(1);
@@ -42,8 +42,18 @@ public class OrderServiceTest {
         OrderDto result = orderService.getOrderById(1);
 
         // Then
-        verify(orderRepository, times(1)).findById(1);
+        verify(orderRepository).findById(1);
         assertEquals(orderDto.getId(), result.getId());
+    }
+
+    @Test
+    public void testGetOrderById_NotFound() {
+        // Given
+        when(orderRepository.findById(1)).thenReturn(Optional.empty());
+
+        // When & Then
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> orderService.getOrderById(1));
+        assertEquals("Order not found", thrown.getMessage());
     }
 
     @Test
@@ -63,7 +73,7 @@ public class OrderServiceTest {
         OrderDto result = orderService.createOrder(orderDto);
 
         // Then
-        verify(orderRepository, times(1)).save(order);
+        verify(orderRepository).save(order);
         assertEquals(orderDto.getId(), result.getId());
         assertEquals(orderDto.getStatus(), result.getStatus());
     }
@@ -87,8 +97,8 @@ public class OrderServiceTest {
         OrderDto result = orderService.updateOrder(orderDto);
 
         // Then
-        verify(orderRepository, times(1)).findById(1);
-        verify(orderRepository, times(1)).save(order);
+        verify(orderRepository).findById(1);
+        verify(orderRepository).save(order);
         assertEquals(orderDto.getStatus(), result.getStatus());
         assertEquals(orderDto.getTotalAmount(), result.getTotalAmount());
     }
@@ -100,6 +110,6 @@ public class OrderServiceTest {
         orderService.deleteOrder(1);
 
         // Then
-        verify(orderRepository, times(1)).deleteById(1);
+        verify(orderRepository).deleteById(1);
     }
 }

@@ -23,7 +23,7 @@ public class OrderService {
     public OrderDto getOrderById(Integer id) {
         return orderRepository.findById(id)
                 .map(OrderMapper.INSTANCE::toDto)
-                .orElse(null);
+                .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
     @Transactional

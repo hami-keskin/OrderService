@@ -34,7 +34,7 @@ public class OrderItemService {
     public OrderItemDto getOrderItemById(Integer id) {
         return orderItemRepository.findById(id)
                 .map(OrderItemMapper.INSTANCE::toDto)
-                .orElse(null);
+                .orElseThrow(() -> new RuntimeException("Order item not found"));
     }
 
     @Transactional

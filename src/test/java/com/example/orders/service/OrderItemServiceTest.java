@@ -41,7 +41,7 @@ public class OrderItemServiceTest {
     }
 
     @Test
-    public void testGetOrderItemById() {
+    public void testGetOrderItemById_Success() {
         // Given
         OrderItem orderItem = new OrderItem();
         orderItem.setId(1);
@@ -52,8 +52,18 @@ public class OrderItemServiceTest {
         var result = orderItemService.getOrderItemById(1);
 
         // Then
-        verify(orderItemRepository, times(1)).findById(1);
+        verify(orderItemRepository).findById(1);
         assertEquals(orderItemDto.getId(), result.getId());
+    }
+
+    @Test
+    public void testGetOrderItemById_NotFound() {
+        // Given
+        when(orderItemRepository.findById(1)).thenReturn(Optional.empty());
+
+        // When & Then
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> orderItemService.getOrderItemById(1));
+        assertEquals("Order item not found", thrown.getMessage());
     }
 
     @Test
@@ -78,9 +88,9 @@ public class OrderItemServiceTest {
         var result = orderItemService.createOrderItem(orderItemDto);
 
         // Then
-        verify(productClient, times(1)).getProductById(1);
-        verify(orderRepository, times(1)).findById(1);
-        verify(orderItemRepository, times(1)).save(orderItem);
+        verify(productClient).getProductById(1);
+        verify(orderRepository).findById(1);
+        verify(orderItemRepository).save(orderItem);
         assertEquals(orderItemDto.getQuantity(), result.getQuantity());
         assertEquals(50.0, result.getPrice());
     }
@@ -109,10 +119,10 @@ public class OrderItemServiceTest {
         var result = orderItemService.updateOrderItem(orderItemDto);
 
         // Then
-        verify(orderItemRepository, times(1)).findById(1);
-        verify(orderRepository, times(1)).findById(1);
-        verify(productClient, times(1)).getProductById(1);
-        verify(orderItemRepository, times(1)).save(orderItem);
+        verify(orderItemRepository).findById(1);
+        verify(orderRepository).findById(1);
+        verify(productClient).getProductById(1);
+        verify(orderItemRepository).save(orderItem);
         assertEquals(orderItemDto.getQuantity(), result.getQuantity());
         assertEquals(60.0, result.getPrice());
     }
@@ -124,6 +134,31 @@ public class OrderItemServiceTest {
         orderItemService.deleteOrderItem(1);
 
         // Then
-        verify(orderItemRepository, times(1)).deleteById(1);
+        verify(orderItemRepository).deleteById(1);
+    }
+
+    @Test
+    public void testCreateOrderItem_ProductNotFound() {
+        // Given
+        OrderItemDto orderItemDto = new OrderItemDto();
+        orderItemDto.setProductId(1);
+        orderItemDto.setOrderId(1);
+        when(productClient.getProductById(1)).thenReturn(null);
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> orderItemService.createOrderItem(orderItemDto));
+    }
+
+    @Test
+    public void testUpdateOrderItem_OrderNotFound() {
+        // Given
+        OrderItemDto orderItemDto = new OrderItemDto();
+        orderItemDto.setId(1);
+        orderItemDto.setProductId(1);
+        orderItemDto.setOrderId(1);
+        when(orderItemRepository.findById(1)).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThrows(RuntimeException.class, () -> orderItemService.updateOrderItem(orderItemDto));
     }
 }
