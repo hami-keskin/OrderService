@@ -27,6 +27,10 @@ public class OrderService {
     @Transactional
     @CachePut(value = "orders", key = "#orderDto.id")
     public OrderDto createOrder(OrderDto orderDto) {
+        if (orderDto.getTotalAmount() < 0) {
+            throw new IllegalArgumentException("Total amount must be positive");
+        }
+
         Order order = OrderMapper.INSTANCE.toEntity(orderDto);
         return OrderMapper.INSTANCE.toDto(orderRepository.save(order));
     }
