@@ -47,11 +47,13 @@ public class OrderItemServiceTest {
         when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
 
         // When
-        var result = orderItemService.getOrderItemById(1);
+        OrderItemDto result = orderItemService.getOrderItemById(1);
 
         // Then
         verify(orderItemRepository).findById(1);
         assertEquals(orderItemDto.getId(), result.getId());
+        assertEquals(orderItemDto.getProductId(), result.getProductId());
+        assertEquals(orderItemDto.getQuantity(), result.getQuantity());
     }
 
     @Test
@@ -74,15 +76,15 @@ public class OrderItemServiceTest {
         Order order = TestData.createOrder();
         when(productClient.getProductById(1)).thenReturn(product);
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-        when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
+        when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
 
         // When
-        var result = orderItemService.createOrderItem(orderItemDto);
+        OrderItemDto result = orderItemService.createOrderItem(orderItemDto);
 
         // Then
         verify(productClient).getProductById(1);
         verify(orderRepository).findById(1);
-        verify(orderItemRepository).save(orderItem);
+        verify(orderItemRepository).save(any(OrderItem.class));
         assertEquals(orderItemDto.getQuantity(), result.getQuantity());
         assertEquals(50.0, result.getPrice());
     }
@@ -98,16 +100,16 @@ public class OrderItemServiceTest {
         when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(productClient.getProductById(1)).thenReturn(product);
-        when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
+        when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
 
         // When
-        var result = orderItemService.updateOrderItem(orderItemDto);
+        OrderItemDto result = orderItemService.updateOrderItem(orderItemDto);
 
         // Then
         verify(orderItemRepository).findById(1);
         verify(orderRepository).findById(1);
         verify(productClient).getProductById(1);
-        verify(orderItemRepository).save(orderItem);
+        verify(orderItemRepository).save(any(OrderItem.class));
         assertEquals(orderItemDto.getQuantity(), result.getQuantity());
         assertEquals(50.0, result.getPrice());
     }

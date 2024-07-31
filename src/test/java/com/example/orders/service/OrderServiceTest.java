@@ -42,6 +42,8 @@ public class OrderServiceTest {
         // Then
         verify(orderRepository).findById(1);
         assertEquals(orderDto.getId(), result.getId());
+        assertEquals(orderDto.getStatus(), result.getStatus());
+        assertEquals(orderDto.getTotalAmount(), result.getTotalAmount());
     }
 
     @Test
@@ -60,15 +62,16 @@ public class OrderServiceTest {
         // Given
         OrderDto orderDto = TestData.createOrderDto();
         Order order = TestData.createOrder();
-        when(orderRepository.save(order)).thenReturn(order);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         // When
         OrderDto result = orderService.createOrder(orderDto);
 
         // Then
-        verify(orderRepository).save(order);
+        verify(orderRepository).save(any(Order.class));
         assertEquals(orderDto.getId(), result.getId());
         assertEquals(orderDto.getStatus(), result.getStatus());
+        assertEquals(orderDto.getTotalAmount(), result.getTotalAmount());
     }
 
     @Test
@@ -78,14 +81,14 @@ public class OrderServiceTest {
         OrderDto orderDto = TestData.createOrderDto();
         Order order = TestData.createOrder();
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-        when(orderRepository.save(order)).thenReturn(order);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         // When
         OrderDto result = orderService.updateOrder(orderDto);
 
         // Then
         verify(orderRepository).findById(1);
-        verify(orderRepository).save(order);
+        verify(orderRepository).save(any(Order.class));
         assertEquals(orderDto.getStatus(), result.getStatus());
         assertEquals(orderDto.getTotalAmount(), result.getTotalAmount());
     }
