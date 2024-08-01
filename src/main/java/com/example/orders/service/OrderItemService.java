@@ -20,13 +20,13 @@ import java.util.Map;
 public class OrderItemService {
 
     @Autowired
-    private OrderItemRepository orderItemRepository;
+    OrderItemRepository orderItemRepository;
 
     @Autowired
-    private OrderRepository orderRepository;
+    OrderRepository orderRepository;
 
     @Autowired
-    private ProductClient productClient;
+    ProductClient productClient;
 
     @Cacheable("orderItems")
     public OrderItemDto getOrderItemById(Integer id) {

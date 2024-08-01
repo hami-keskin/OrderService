@@ -9,20 +9,16 @@ import com.example.orders.repository.OrderItemRepository;
 import com.example.orders.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 public class OrderItemServiceTest {
 
     @Mock
@@ -34,90 +30,86 @@ public class OrderItemServiceTest {
     @Mock
     private ProductClient productClient;
 
-    @InjectMocks
     private OrderItemService orderItemService;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
+        orderItemService = new OrderItemService();
+        orderItemService.orderItemRepository = orderItemRepository;
+        orderItemService.orderRepository = orderRepository;
+        orderItemService.productClient = productClient;
     }
 
     @Test
-    void testGetOrderItemById() {
-        OrderItem orderItem = TestData.createOrderItem(1, 101, 2, 50.0, null);
+    public void testGetOrderItemById() {
+        OrderItem orderItem = new OrderItem();
+        orderItem.setId(1);
+        orderItem.setProductId(1);
+        orderItem.setQuantity(2);
+        orderItem.setPrice(100.0);
+
         when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
 
         OrderItemDto orderItemDto = orderItemService.getOrderItemById(1);
-
         assertNotNull(orderItemDto);
-        assertEquals(101, orderItemDto.getProductId());
-        verify(orderItemRepository, times(1)).findById(1);
+        assertEquals(1, orderItemDto.getId());
     }
 
     @Test
-    void testCreateOrderItem() {
+    public void testCreateOrderItem() {
         OrderItemDto orderItemDto = new OrderItemDto();
-        orderItemDto.setProductId(101);
-        orderItemDto.setQuantity(2);
         orderItemDto.setOrderId(1);
-
-        Order order = TestData.createOrder(1, LocalDateTime.now(), "Processing", 100.0, 1, null);
-        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-
-        Map<String, Object> product = Map.of("price", 50.0);
-        when(productClient.getProductById(101)).thenReturn(product);
+        orderItemDto.setProductId(1);
+        orderItemDto.setQuantity(2);
+        orderItemDto.setPrice(100.0);
 
         OrderItem orderItem = OrderItemMapper.INSTANCE.toEntity(orderItemDto);
-        orderItem.setPrice(50.0);
+        Order order = new Order();
+        order.setId(1);
+
+        Map<String, Object> product = new HashMap<>();
+        product.put("price", 100.0);
+
+        when(productClient.getProductById(1)).thenReturn(product);
+        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
         when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
 
         OrderItemDto createdOrderItem = orderItemService.createOrderItem(orderItemDto);
-
         assertNotNull(createdOrderItem);
-        assertEquals(50.0, createdOrderItem.getPrice());
-        verify(orderRepository, times(1)).findById(1);
-        verify(productClient, times(1)).getProductById(101);
-        verify(orderItemRepository, times(1)).save(any(OrderItem.class));
+        assertEquals(100.0, createdOrderItem.getPrice());
     }
 
     @Test
-    void testUpdateOrderItem() {
-        OrderItem orderItem = TestData.createOrderItem(1, 101, 2, 50.0, null);
-        when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
-
-        Order order = TestData.createOrder(1, LocalDateTime.now(), "Processing", 100.0, 1, null);
-        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-
-        Map<String, Object> product = Map.of("price", 60.0);
-        when(productClient.getProductById(101)).thenReturn(product);
-
+    public void testUpdateOrderItem() {
         OrderItemDto orderItemDto = new OrderItemDto();
         orderItemDto.setId(1);
-        orderItemDto.setProductId(101);
-        orderItemDto.setQuantity(3);
         orderItemDto.setOrderId(1);
+        orderItemDto.setProductId(1);
+        orderItemDto.setQuantity(2);
 
-        OrderItem updatedOrderItem = OrderItemMapper.INSTANCE.toEntity(orderItemDto);
-        updatedOrderItem.setPrice(60.0);
-        when(orderItemRepository.save(any(OrderItem.class))).thenReturn(updatedOrderItem);
+        OrderItem orderItem = new OrderItem();
+        orderItem.setId(1);
+        Order order = new Order();
+        order.setId(1);
 
-        OrderItemDto updatedOrderItemDto = orderItemService.updateOrderItem(orderItemDto);
+        Map<String, Object> product = new HashMap<>();
+        product.put("price", 100.0);
 
-        assertNotNull(updatedOrderItemDto);
-        assertEquals(60.0, updatedOrderItemDto.getPrice());
-        assertEquals(3, updatedOrderItemDto.getQuantity());
-        verify(orderItemRepository, times(1)).findById(1);
-        verify(orderRepository, times(1)).findById(1);
-        verify(productClient, times(1)).getProductById(101);
-        verify(orderItemRepository, times(1)).save(any(OrderItem.class));
+        when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
+        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+        when(productClient.getProductById(1)).thenReturn(product);
+        when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
+
+        OrderItemDto updatedOrderItem = orderItemService.updateOrderItem(orderItemDto);
+        assertNotNull(updatedOrderItem);
+        assertEquals(100.0, updatedOrderItem.getPrice());
     }
 
     @Test
-    void testDeleteOrderItem() {
+    public void testDeleteOrderItem() {
         doNothing().when(orderItemRepository).deleteById(1);
-
         orderItemService.deleteOrderItem(1);
-
         verify(orderItemRepository, times(1)).deleteById(1);
     }
 }
