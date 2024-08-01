@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 
     @Autowired
-    private OrderRepository orderRepository;
+    OrderRepository orderRepository;
 
     @Cacheable("orders")
     public OrderDto getOrderById(Integer id) {
