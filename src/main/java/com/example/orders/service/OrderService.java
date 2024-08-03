@@ -41,7 +41,7 @@ public class OrderService {
     public OrderDto createOrder(OrderDto orderDto) {
         Order order = orderMapper.toEntity(orderDto);
         order.setOrderDate(LocalDateTime.now());
-        order.setStatus(1); // Örnek olarak 1 atanıyor, ihtiyaçlarınıza göre güncelleyebilirsiniz.
+        order.setStatus(1);
         order.setTotalAmount(0.0);
         order = orderRepository.save(order);
         return orderMapper.toDto(order);
@@ -61,59 +61,9 @@ public class OrderService {
 
     @Transactional
     public OrderItemDto addOrderItem(Integer orderId, OrderItemDto orderItemDto) {
-        Order order = orderRepository.findById(orderId).orElseThrow();
-
-        // Aynı productId ile mevcut OrderItem'ı bul
-        Optional<OrderItem> existingOrderItemOpt = order.getOrderItems()
-                .stream()
-                .filter(item -> item.getProductId().equals(orderItemDto.getProductId()))
-                .findFirst();
-
-        ProductDto productDto = productClient.getProductById(orderItemDto.getProductId());
-
-        OrderItem orderItem;
-        if (existingOrderItemOpt.isPresent()) {
-            // Mevcut OrderItem'ı güncelle
-            orderItem = existingOrderItemOpt.get();
-            order.setTotalAmount(order.getTotalAmount() - orderItem.getTotalAmount());
-            orderItem.setQuantity(orderItem.getQuantity() + orderItemDto.getQuantity());
-            orderItem.setTotalAmount(productDto.getPrice() * orderItem.getQuantity());
-        } else {
-            // Yeni OrderItem oluştur
-            orderItem = orderItemMapper.toEntity(orderItemDto);
-            orderItem.setPrice(productDto.getPrice());
-            orderItem.setTotalAmount(productDto.getPrice() * orderItemDto.getQuantity());
-            orderItem.setOrder(order);
-            order.getOrderItems().add(orderItem);
-        }
-
-        order.setTotalAmount(order.getTotalAmount() + orderItem.getTotalAmount());
-
-        orderItem = orderItemRepository.save(orderItem); // OrderItem kaydediliyor ve id'si oluşturuluyor
-        orderRepository.save(order);
-
-        return orderItemMapper.toDto(orderItem);
-    }
-
-    @Transactional
-    public OrderItemDto updateOrderItem(Integer orderId, Integer orderItemId, OrderItemDto orderItemDto) {
-        Order order = orderRepository.findById(orderId).orElseThrow();
-        OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow();
-
-        if (!order.getOrderItems().contains(orderItem)) {
-            throw new IllegalArgumentException("Order item does not belong to the specified order.");
-        }
-
-        if (orderItemDto.getQuantity() <= 0) {
-            deleteOrderItem(orderId, orderItemId);
-            return null;
-        }
-
-        ProductDto productDto = productClient.getProductById(orderItem.getProductId());
-        order.setTotalAmount(order.getTotalAmount() - orderItem.getTotalAmount());
-        orderItem.setQuantity(orderItemDto.getQuantity());
-        orderItem.setTotalAmount(productDto.getPrice() * orderItem.getQuantity());
-        order.setTotalAmount(order.getTotalAmount() + orderItem.getTotalAmount());
+        Order order = findOrderById(orderId);
+        OrderItem orderItem = findOrCreateOrderItem(order, orderItemDto);
+        updateOrderTotalAmount(order, orderItem.getTotalAmount());
 
         orderItem = orderItemRepository.save(orderItem);
         orderRepository.save(order);
@@ -122,15 +72,31 @@ public class OrderService {
     }
 
     @Transactional
+    public OrderItemDto updateOrderItem(Integer orderId, Integer orderItemId, OrderItemDto orderItemDto) {
+        Order order = findOrderById(orderId);
+        OrderItem orderItem = findOrderItemById(orderItemId);
+
+        validateOrderItemBelongsToOrder(order, orderItem);
+        handleQuantityZero(order, orderItemDto, orderItemId);
+
+        double oldTotalAmount = orderItem.getTotalAmount();
+        updateOrderItemDetails(orderItem, orderItemDto);
+
+        updateOrderTotalAmount(order, orderItem.getTotalAmount() - oldTotalAmount);
+        orderItem = orderItemRepository.save(orderItem);
+        orderRepository.save(order);
+
+        return orderItemMapper.toDto(orderItem);
+    }
+
+    @Transactional
     public void deleteOrderItem(Integer orderId, Integer orderItemId) {
-        Order order = orderRepository.findById(orderId).orElseThrow();
-        OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow();
+        Order order = findOrderById(orderId);
+        OrderItem orderItem = findOrderItemById(orderItemId);
 
-        if (!order.getOrderItems().contains(orderItem)) {
-            throw new IllegalArgumentException("Order item does not belong to the specified order.");
-        }
+        validateOrderItemBelongsToOrder(order, orderItem);
+        updateOrderTotalAmount(order, -orderItem.getTotalAmount());
 
-        order.setTotalAmount(order.getTotalAmount() - orderItem.getTotalAmount());
         order.getOrderItems().remove(orderItem);
         orderItemRepository.delete(orderItem);
         orderRepository.save(order);
@@ -138,9 +104,67 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<OrderItemDto> getOrderItemsByOrderId(Integer orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow();
+        Order order = findOrderById(orderId);
         return order.getOrderItems().stream()
                 .map(orderItemMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    private Order findOrderById(Integer orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id " + orderId));
+    }
+
+    private OrderItem findOrderItemById(Integer orderItemId) {
+        return orderItemRepository.findById(orderItemId)
+                .orElseThrow(() -> new IllegalArgumentException("Order item not found with id " + orderItemId));
+    }
+
+    private OrderItem findOrCreateOrderItem(Order order, OrderItemDto orderItemDto) {
+        return order.getOrderItems().stream()
+                .filter(item -> item.getProductId().equals(orderItemDto.getProductId()))
+                .findFirst()
+                .map(existingOrderItem -> {
+                    updateOrderTotalAmount(order, -existingOrderItem.getTotalAmount());
+                    existingOrderItem.setQuantity(existingOrderItem.getQuantity() + orderItemDto.getQuantity());
+                    updateOrderItemTotalAmount(existingOrderItem);
+                    return existingOrderItem;
+                })
+                .orElseGet(() -> createNewOrderItem(order, orderItemDto));
+    }
+
+    private OrderItem createNewOrderItem(Order order, OrderItemDto orderItemDto) {
+        OrderItem orderItem = orderItemMapper.toEntity(orderItemDto);
+        updateOrderItemTotalAmount(orderItem);
+        orderItem.setOrder(order);
+        order.getOrderItems().add(orderItem);
+        return orderItem;
+    }
+
+    private void updateOrderItemTotalAmount(OrderItem orderItem) {
+        ProductDto productDto = productClient.getProductById(orderItem.getProductId());
+        orderItem.setPrice(productDto.getPrice());
+        orderItem.setTotalAmount(productDto.getPrice() * orderItem.getQuantity());
+    }
+
+    private void updateOrderTotalAmount(Order order, double amount) {
+        order.setTotalAmount(order.getTotalAmount() + amount);
+    }
+
+    private void updateOrderItemDetails(OrderItem orderItem, OrderItemDto orderItemDto) {
+        orderItem.setQuantity(orderItemDto.getQuantity());
+        updateOrderItemTotalAmount(orderItem);
+    }
+
+    private void validateOrderItemBelongsToOrder(Order order, OrderItem orderItem) {
+        if (!order.getOrderItems().contains(orderItem)) {
+            throw new IllegalArgumentException("Order item does not belong to the specified order.");
+        }
+    }
+
+    private void handleQuantityZero(Order order, OrderItemDto orderItemDto, Integer orderItemId) {
+        if (orderItemDto.getQuantity() <= 0) {
+            deleteOrderItem(order.getId(), orderItemId);
+        }
     }
 }

@@ -55,7 +55,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"id\": 1,\n  \"orderDate\": \"2024-08-02T00:00:00\",\n  \"totalAmount\": 100.0,\n  \"status\": 2\n}"
+          "raw": "{\n  \"orderDate\": \"2024-08-02T00:00:00\",\n  \"totalAmount\": 100.0,\n  \"status\": 2\n}"
         },
         "url": {
           "raw": "http://localhost:9090/api/orders/1",
@@ -92,7 +92,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"orderId\": 1,\n  \"productId\": 2,\n  \"quantity\": 3\n}"
+          "raw": "{\n  \"productId\": 2,\n  \"quantity\": 3\n}"
         },
         "url": {
           "raw": "http://localhost:9090/api/orders/1/items",
