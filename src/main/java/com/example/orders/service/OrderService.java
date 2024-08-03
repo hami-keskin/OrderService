@@ -60,14 +60,31 @@ public class OrderService {
     @Transactional
     public OrderItemDto addOrderItem(Integer orderId, OrderItemDto orderItemDto) {
         Order order = orderRepository.findById(orderId).orElseThrow();
-        OrderItem orderItem = orderItemMapper.toEntity(orderItemDto);
+
+        // Aynı productId ile mevcut OrderItem'ı bul
+        Optional<OrderItem> existingOrderItemOpt = order.getOrderItems()
+                .stream()
+                .filter(item -> item.getProductId().equals(orderItemDto.getProductId()))
+                .findFirst();
 
         ProductDto productDto = productClient.getProductById(orderItemDto.getProductId());
-        orderItem.setPrice(productDto.getPrice());
-        orderItem.setTotalAmount(productDto.getPrice() * orderItemDto.getQuantity());
 
-        orderItem.setOrder(order);
-        order.getOrderItems().add(orderItem);
+        OrderItem orderItem;
+        if (existingOrderItemOpt.isPresent()) {
+            // Mevcut OrderItem'ı güncelle
+            orderItem = existingOrderItemOpt.get();
+            order.setTotalAmount(order.getTotalAmount() - orderItem.getTotalAmount());
+            orderItem.setQuantity(orderItem.getQuantity() + orderItemDto.getQuantity());
+            orderItem.setTotalAmount(productDto.getPrice() * orderItem.getQuantity());
+        } else {
+            // Yeni OrderItem oluştur
+            orderItem = orderItemMapper.toEntity(orderItemDto);
+            orderItem.setPrice(productDto.getPrice());
+            orderItem.setTotalAmount(productDto.getPrice() * orderItemDto.getQuantity());
+            orderItem.setOrder(order);
+            order.getOrderItems().add(orderItem);
+        }
+
         order.setTotalAmount(order.getTotalAmount() + orderItem.getTotalAmount());
 
         orderItem = orderItemRepository.save(orderItem); // OrderItem kaydediliyor ve id'si oluşturuluyor
