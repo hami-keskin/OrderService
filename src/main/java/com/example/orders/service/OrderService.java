@@ -9,6 +9,7 @@ import com.example.orders.entity.OrderItem;
 import com.example.orders.mapper.OrderItemMapper;
 import com.example.orders.mapper.OrderMapper;
 import com.example.orders.repository.OrderRepository;
+import com.example.orders.repository.OrderItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -23,6 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
     private final ProductClient productClient;
@@ -68,6 +70,7 @@ public class OrderService {
         order.getOrderItems().add(orderItem);
         order.setTotalAmount(order.getTotalAmount() + orderItem.getTotalAmount());
 
+        orderItem = orderItemRepository.save(orderItem); // OrderItem kaydediliyor ve id'si oluşturuluyor
         orderRepository.save(order);
 
         return orderItemMapper.toDto(orderItem);
