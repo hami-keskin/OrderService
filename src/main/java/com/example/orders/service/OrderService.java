@@ -39,7 +39,7 @@ public class OrderService {
     public OrderDto createOrder(OrderDto orderDto) {
         Order order = orderMapper.toEntity(orderDto);
         order.setOrderDate(LocalDateTime.now());
-        order.setStatus(1); // Burada örnek olarak 1 atanıyor, ihtiyaçlarınıza göre güncelleyebilirsiniz.
+        order.setStatus(1); // Örnek olarak 1 atanıyor, ihtiyaçlarınıza göre güncelleyebilirsiniz.
         order.setTotalAmount(0.0);
         order = orderRepository.save(order);
         return orderMapper.toDto(order);
@@ -91,5 +91,46 @@ public class OrderService {
         orderRepository.save(order);
 
         return orderItemMapper.toDto(orderItem);
+    }
+
+    @Transactional
+    public OrderItemDto updateOrderItem(Integer orderId, Integer orderItemId, OrderItemDto orderItemDto) {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow();
+
+        if (!order.getOrderItems().contains(orderItem)) {
+            throw new IllegalArgumentException("Order item does not belong to the specified order.");
+        }
+
+        if (orderItemDto.getQuantity() <= 0) {
+            deleteOrderItem(orderId, orderItemId);
+            return null;
+        }
+
+        ProductDto productDto = productClient.getProductById(orderItem.getProductId());
+        order.setTotalAmount(order.getTotalAmount() - orderItem.getTotalAmount());
+        orderItem.setQuantity(orderItemDto.getQuantity());
+        orderItem.setTotalAmount(productDto.getPrice() * orderItem.getQuantity());
+        order.setTotalAmount(order.getTotalAmount() + orderItem.getTotalAmount());
+
+        orderItem = orderItemRepository.save(orderItem);
+        orderRepository.save(order);
+
+        return orderItemMapper.toDto(orderItem);
+    }
+
+    @Transactional
+    public void deleteOrderItem(Integer orderId, Integer orderItemId) {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        OrderItem orderItem = orderItemRepository.findById(orderItemId).orElseThrow();
+
+        if (!order.getOrderItems().contains(orderItem)) {
+            throw new IllegalArgumentException("Order item does not belong to the specified order.");
+        }
+
+        order.setTotalAmount(order.getTotalAmount() - orderItem.getTotalAmount());
+        order.getOrderItems().remove(orderItem);
+        orderItemRepository.delete(orderItem);
+        orderRepository.save(order);
     }
 }

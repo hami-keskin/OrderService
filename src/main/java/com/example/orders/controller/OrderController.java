@@ -45,4 +45,16 @@ public class OrderController {
         OrderItemDto createdOrderItem = orderService.addOrderItem(orderId, orderItemDto);
         return ResponseEntity.ok(createdOrderItem);
     }
+
+    @PutMapping("/{orderId}/items/{orderItemId}")
+    public ResponseEntity<OrderItemDto> updateOrderItem(@PathVariable Integer orderId, @PathVariable Integer orderItemId, @RequestBody OrderItemDto orderItemDto) {
+        OrderItemDto updatedOrderItem = orderService.updateOrderItem(orderId, orderItemId, orderItemDto);
+        return ResponseEntity.ok(updatedOrderItem);
+    }
+
+    @DeleteMapping("/{orderId}/items/{orderItemId}")
+    public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer orderId, @PathVariable Integer orderItemId) {
+        orderService.deleteOrderItem(orderId, orderItemId);
+        return ResponseEntity.noContent().build();
+    }
 }
