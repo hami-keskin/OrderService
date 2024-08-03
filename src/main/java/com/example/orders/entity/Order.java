@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "orders") // Tablo adını değiştirdik
 @Data
 @NoArgsConstructor
 public class Order {
