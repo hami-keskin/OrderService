@@ -139,6 +139,20 @@
           "path": ["api", "orders", "1", "items", "1"]
         }
       }
+    },
+    {
+      "name": "Get Order Items by Order ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:9090/api/orders/1/items",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "9090",
+          "path": ["api", "orders", "1", "items"]
+        }
+      }
     }
   ]
 }

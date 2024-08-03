@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -56,5 +57,11 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer orderId, @PathVariable Integer orderItemId) {
         orderService.deleteOrderItem(orderId, orderItemId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{orderId}/items")
+    public ResponseEntity<List<OrderItemDto>> getOrderItemsByOrderId(@PathVariable Integer orderId) {
+        List<OrderItemDto> orderItems = orderService.getOrderItemsByOrderId(orderId);
+        return ResponseEntity.ok(orderItems);
     }
 }
