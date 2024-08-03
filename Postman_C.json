@@ -1,7 +1,8 @@
 {
   "info": {
-    "_postman_id": "your-postman-id",
-    "name": "Order Service",
+    "name": "Order and OrderItem API Collection",
+    "_postman_id": "12345678-1234-1234-1234-123456789012",
+    "description": "API endpoints for Order and OrderItem services",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -11,16 +12,11 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:9090/orders/1",
+          "raw": "http://localhost:8080/api/orders/1",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "9090",
-          "path": [
-            "orders",
-            "1"
-          ]
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "orders", "1"]
         }
       }
     },
@@ -36,18 +32,14 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"orderDate\":\"2024-07-30T14:00:00\",\"status\":\"NEW\",\"totalAmount\":100.0,\"customerId\":1}"
+          "raw": "{\n  \"orderDate\": \"2023-08-01T12:00:00\",\n  \"status\": \"NEW\",\n  \"totalAmount\": 100.0,\n  \"customerId\": 1\n}"
         },
         "url": {
-          "raw": "http://localhost:9090/orders",
+          "raw": "http://localhost:8080/api/orders",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "9090",
-          "path": [
-            "orders"
-          ]
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "orders"]
         }
       }
     },
@@ -63,19 +55,14 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"id\":1,\"orderDate\":\"2024-07-30T14:00:00\",\"status\":\"UPDATED\",\"totalAmount\":150.0,\"customerId\":1}"
+          "raw": "{\n  \"id\": 1,\n  \"orderDate\": \"2023-08-01T12:00:00\",\n  \"status\": \"UPDATED\",\n  \"totalAmount\": 200.0,\n  \"customerId\": 1\n}"
         },
         "url": {
-          "raw": "http://localhost:9090/orders/1",
+          "raw": "http://localhost:8080/api/orders/1",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "9090",
-          "path": [
-            "orders",
-            "1"
-          ]
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "orders", "1"]
         }
       }
     },
@@ -85,16 +72,11 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:9090/orders/1",
+          "raw": "http://localhost:8080/api/orders/1",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "9090",
-          "path": [
-            "orders",
-            "1"
-          ]
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "orders", "1"]
         }
       }
     },
@@ -104,16 +86,11 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:9090/order-items/1",
+          "raw": "http://localhost:8080/api/orderItems/1",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "9090",
-          "path": [
-            "order-items",
-            "1"
-          ]
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "orderItems", "1"]
         }
       }
     },
@@ -129,18 +106,14 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"orderId\":1,\"productId\":1,\"quantity\":2}"
+          "raw": "{\n  \"orderId\": 1,\n  \"productId\": 1,\n  \"quantity\": 10,\n  \"price\": 100.0\n}"
         },
         "url": {
-          "raw": "http://localhost:9090/order-items",
+          "raw": "http://localhost:8080/api/orderItems",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "9090",
-          "path": [
-            "order-items"
-          ]
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "orderItems"]
         }
       }
     },
@@ -156,19 +129,14 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"id\":1,\"orderId\":1,\"productId\":1,\"quantity\":3}"
+          "raw": "{\n  \"id\": 1,\n  \"orderId\": 1,\n  \"productId\": 1,\n  \"quantity\": 20,\n  \"price\": 200.0\n}"
         },
         "url": {
-          "raw": "http://localhost:9090/order-items/1",
+          "raw": "http://localhost:8080/api/orderItems/1",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "9090",
-          "path": [
-            "order-items",
-            "1"
-          ]
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "orderItems", "1"]
         }
       }
     },
@@ -178,16 +146,11 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "http://localhost:9090/order-items/1",
+          "raw": "http://localhost:8080/api/orderItems/1",
           "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "9090",
-          "path": [
-            "order-items",
-            "1"
-          ]
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "orderItems", "1"]
         }
       }
     }

@@ -4,15 +4,12 @@ import com.example.orders.dto.OrderItemDto;
 import com.example.orders.entity.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface OrderItemMapper {
-    OrderItemMapper INSTANCE = Mappers.getMapper(OrderItemMapper.class);
-
     @Mapping(source = "order.id", target = "orderId")
     OrderItemDto toDto(OrderItem orderItem);
 
-    @Mapping(target = "order.id", source = "orderId")
+    @Mapping(source = "orderId", target = "order.id")
     OrderItem toEntity(OrderItemDto orderItemDto);
 }

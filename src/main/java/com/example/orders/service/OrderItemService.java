@@ -1,77 +1,44 @@
 package com.example.orders.service;
 
-import com.example.orders.client.ProductClient;
 import com.example.orders.dto.OrderItemDto;
-import com.example.orders.entity.Order;
 import com.example.orders.entity.OrderItem;
 import com.example.orders.mapper.OrderItemMapper;
 import com.example.orders.repository.OrderItemRepository;
-import com.example.orders.repository.OrderRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class OrderItemService {
-
     private final OrderItemRepository orderItemRepository;
-    private final OrderRepository orderRepository;
-    private final ProductClient productClient;
+    private final OrderItemMapper orderItemMapper;
 
-    public OrderItemService(OrderItemRepository orderItemRepository,
-                            OrderRepository orderRepository,
-                            ProductClient productClient) {
-        this.orderItemRepository = orderItemRepository;
-        this.orderRepository = orderRepository;
-        this.productClient = productClient;
-    }
-
-    @Cacheable("orderItems")
-    public OrderItemDto getOrderItemById(Integer id) {
+    @Cacheable("orderItem")
+    public Optional<OrderItemDto> getOrderItemById(Integer id) {
         return orderItemRepository.findById(id)
-                .map(OrderItemMapper.INSTANCE::toDto)
-                .orElseThrow(() -> new RuntimeException("Order item not found"));
+                .map(orderItemMapper::toDto);
     }
 
-    @Transactional
-    @CachePut(value = "orderItems", key = "#orderItemDto.id")
+    @CachePut(value = "orderItem", key = "#result.id")
     public OrderItemDto createOrderItem(OrderItemDto orderItemDto) {
-        // Product ID'yi ve price'ı almak için Feign Client'ı kullan
-        Map<String, Object> product = productClient.getProductById(orderItemDto.getProductId());
-        Double price = (Double) product.get("price");
-
-        OrderItem orderItem = OrderItemMapper.INSTANCE.toEntity(orderItemDto);
-        orderItem.setPrice(price); // Feign Client ile alınan price değeri
-        Order order = orderRepository.findById(orderItemDto.getOrderId())
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-        orderItem.setOrder(order);
-        return OrderItemMapper.INSTANCE.toDto(orderItemRepository.save(orderItem));
+        OrderItem orderItem = orderItemMapper.toEntity(orderItemDto);
+        orderItem = orderItemRepository.save(orderItem);
+        return orderItemMapper.toDto(orderItem);
     }
 
-    @Transactional
-    @CachePut(value = "orderItems", key = "#orderItemDto.id")
+    @CachePut(value = "orderItem", key = "#orderItemDto.id")
     public OrderItemDto updateOrderItem(OrderItemDto orderItemDto) {
-        OrderItem orderItem = orderItemRepository.findById(orderItemDto.getId()).orElseThrow();
-        Order order = orderRepository.findById(orderItemDto.getOrderId())
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-        orderItem.setOrder(order);
-
-        // Product ID'yi ve price'ı almak için Feign Client'ı kullan
-        Map<String, Object> product = productClient.getProductById(orderItemDto.getProductId());
-        Double price = (Double) product.get("price");
-
-        orderItem.setProductId(orderItemDto.getProductId());
-        orderItem.setQuantity(orderItemDto.getQuantity());
-        orderItem.setPrice(price); // Feign Client ile alınan price değeri
-        return OrderItemMapper.INSTANCE.toDto(orderItemRepository.save(orderItem));
+        OrderItem orderItem = orderItemMapper.toEntity(orderItemDto);
+        orderItem = orderItemRepository.save(orderItem);
+        return orderItemMapper.toDto(orderItem);
     }
 
-    @Transactional
-    @CacheEvict(value = "orderItems", key = "#id")
+    @CacheEvict(value = "orderItem", key = "#id")
     public void deleteOrderItem(Integer id) {
         orderItemRepository.deleteById(id);
     }

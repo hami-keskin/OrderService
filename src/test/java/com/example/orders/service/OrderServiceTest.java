@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -15,53 +16,55 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 public class OrderServiceTest {
 
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private OrderMapper orderMapper;
+
     private OrderService orderService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-        orderService = new OrderService(orderRepository);
+        orderService = new OrderService(orderRepository, orderMapper);
     }
 
     @Test
-    public void testGetOrderById() {
+    void testGetOrderById() {
         Order order = new Order();
-        order.setId(1);
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus("NEW");
-        order.setTotalAmount(100.0);
-        order.setCustomerId(1);
-
+        OrderDto orderDto = new OrderDto();
         when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+        when(orderMapper.toDto(order)).thenReturn(orderDto);
 
-        OrderDto orderDto = orderService.getOrderById(1);
-        assertNotNull(orderDto);
-        assertEquals(1, orderDto.getId());
+        Optional<OrderDto> result = orderService.getOrderById(1);
+        assertTrue(result.isPresent());
+        assertEquals(orderDto, result.get());
     }
 
     @Test
-    public void testCreateOrder() {
+    void testCreateOrder() {
+        Order order = new Order();
         OrderDto orderDto = new OrderDto();
         orderDto.setOrderDate(LocalDateTime.now());
         orderDto.setStatus("NEW");
         orderDto.setTotalAmount(100.0);
         orderDto.setCustomerId(1);
 
-        Order order = OrderMapper.INSTANCE.toEntity(orderDto);
-        when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(orderMapper.toEntity(orderDto)).thenReturn(order);
+        when(orderRepository.save(order)).thenReturn(order);
+        when(orderMapper.toDto(order)).thenReturn(orderDto);
 
-        OrderDto createdOrder = orderService.createOrder(orderDto);
-        assertNotNull(createdOrder);
-        assertEquals("NEW", createdOrder.getStatus());
+        OrderDto result = orderService.createOrder(orderDto);
+        assertEquals(orderDto, result);
     }
 
     @Test
-    public void testUpdateOrder() {
+    void testUpdateOrder() {
+        Order order = new Order();
         OrderDto orderDto = new OrderDto();
         orderDto.setId(1);
         orderDto.setOrderDate(LocalDateTime.now());
@@ -69,18 +72,16 @@ public class OrderServiceTest {
         orderDto.setTotalAmount(200.0);
         orderDto.setCustomerId(1);
 
-        Order order = new Order();
-        order.setId(1);
-        when(orderRepository.findById(1)).thenReturn(Optional.of(order));
-        when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(orderMapper.toEntity(orderDto)).thenReturn(order);
+        when(orderRepository.save(order)).thenReturn(order);
+        when(orderMapper.toDto(order)).thenReturn(orderDto);
 
-        OrderDto updatedOrder = orderService.updateOrder(orderDto);
-        assertNotNull(updatedOrder);
-        assertEquals("UPDATED", updatedOrder.getStatus());
+        OrderDto result = orderService.updateOrder(orderDto);
+        assertEquals(orderDto, result);
     }
 
     @Test
-    public void testDeleteOrder() {
+    void testDeleteOrder() {
         doNothing().when(orderRepository).deleteById(1);
         orderService.deleteOrder(1);
         verify(orderRepository, times(1)).deleteById(1);

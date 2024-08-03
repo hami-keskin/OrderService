@@ -4,48 +4,41 @@ import com.example.orders.dto.OrderDto;
 import com.example.orders.entity.Order;
 import com.example.orders.mapper.OrderMapper;
 import com.example.orders.repository.OrderRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
-
     private final OrderRepository orderRepository;
+    private final OrderMapper orderMapper;
 
-    public OrderService(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
-    }
-
-    @Cacheable("orders")
-    public OrderDto getOrderById(Integer id) {
+    @Cacheable("order")
+    public Optional<OrderDto> getOrderById(Integer id) {
         return orderRepository.findById(id)
-                .map(OrderMapper.INSTANCE::toDto)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .map(orderMapper::toDto);
     }
 
-    @Transactional
-    @CachePut(value = "orders", key = "#orderDto.id")
+    @CachePut(value = "order", key = "#result.id")
     public OrderDto createOrder(OrderDto orderDto) {
-        Order order = OrderMapper.INSTANCE.toEntity(orderDto);
-        return OrderMapper.INSTANCE.toDto(orderRepository.save(order));
+        Order order = orderMapper.toEntity(orderDto);
+        order = orderRepository.save(order);
+        return orderMapper.toDto(order);
     }
 
-    @Transactional
-    @CachePut(value = "orders", key = "#orderDto.id")
+    @CachePut(value = "order", key = "#orderDto.id")
     public OrderDto updateOrder(OrderDto orderDto) {
-        Order order = orderRepository.findById(orderDto.getId()).orElseThrow();
-        order.setOrderDate(orderDto.getOrderDate());
-        order.setStatus(orderDto.getStatus());
-        order.setTotalAmount(orderDto.getTotalAmount());
-        order.setCustomerId(orderDto.getCustomerId());
-        return OrderMapper.INSTANCE.toDto(orderRepository.save(order));
+        Order order = orderMapper.toEntity(orderDto);
+        order = orderRepository.save(order);
+        return orderMapper.toDto(order);
     }
 
-    @Transactional
-    @CacheEvict(value = "orders", key = "#id")
+    @CacheEvict(value = "order", key = "#id")
     public void deleteOrder(Integer id) {
         orderRepository.deleteById(id);
     }
