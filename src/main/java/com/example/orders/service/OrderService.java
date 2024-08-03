@@ -48,8 +48,9 @@ public class OrderService {
     }
 
     @CachePut(value = "order", key = "#orderDto.id")
-    public OrderDto updateOrder(OrderDto orderDto) {
+    public OrderDto updateOrder(Integer id, OrderDto orderDto) {
         Order order = orderMapper.toEntity(orderDto);
+        order.setId(id);
         order = orderRepository.save(order);
         return orderMapper.toDto(order);
     }
@@ -79,7 +80,7 @@ public class OrderService {
         validateOrderItemBelongsToOrder(order, orderItem);
         handleQuantityZero(order, orderItemDto, orderItemId);
 
-        double oldTotalAmount = orderItem.getTotalAmount();
+        double oldTotalAmount = Optional.ofNullable(orderItem.getTotalAmount()).orElse(0.0);
         updateOrderItemDetails(orderItem, orderItemDto);
 
         updateOrderTotalAmount(order, orderItem.getTotalAmount() - oldTotalAmount);
@@ -95,7 +96,7 @@ public class OrderService {
         OrderItem orderItem = findOrderItemById(orderItemId);
 
         validateOrderItemBelongsToOrder(order, orderItem);
-        updateOrderTotalAmount(order, -orderItem.getTotalAmount());
+        updateOrderTotalAmount(order, -Optional.ofNullable(orderItem.getTotalAmount()).orElse(0.0));
 
         order.getOrderItems().remove(orderItem);
         orderItemRepository.delete(orderItem);
@@ -125,7 +126,7 @@ public class OrderService {
                 .filter(item -> item.getProductId().equals(orderItemDto.getProductId()))
                 .findFirst()
                 .map(existingOrderItem -> {
-                    updateOrderTotalAmount(order, -existingOrderItem.getTotalAmount());
+                    updateOrderTotalAmount(order, -Optional.ofNullable(existingOrderItem.getTotalAmount()).orElse(0.0));
                     existingOrderItem.setQuantity(existingOrderItem.getQuantity() + orderItemDto.getQuantity());
                     updateOrderItemTotalAmount(existingOrderItem);
                     return existingOrderItem;
@@ -148,7 +149,7 @@ public class OrderService {
     }
 
     private void updateOrderTotalAmount(Order order, double amount) {
-        order.setTotalAmount(order.getTotalAmount() + amount);
+        order.setTotalAmount(Optional.ofNullable(order.getTotalAmount()).orElse(0.0) + amount);
     }
 
     private void updateOrderItemDetails(OrderItem orderItem, OrderItemDto orderItemDto) {
