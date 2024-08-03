@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "orders") // Tablo adını değiştirdik
@@ -16,7 +17,9 @@ public class Order {
     private Integer id;
 
     private LocalDateTime orderDate;
-    private String status;
     private Double totalAmount;
-    private Integer customerId;
+    private Integer status; // Integer olarak değiştirildi
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems;
 }

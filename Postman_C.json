@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Order and OrderItem API Collection",
-    "_postman_id": "12345678-1234-1234-1234-123456789012",
+    "_postman_id": "abcdef12-3456-7890-abcd-ef1234567890",
     "description": "API endpoints for Order and OrderItem services",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -32,7 +32,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"orderDate\": \"2023-08-01T12:00:00\",\n  \"status\": \"NEW\",\n  \"totalAmount\": 100.0,\n  \"customerId\": 1\n}"
+          "raw": "{\n  \"orderDate\": \"2024-08-02T00:00:00\",\n  \"totalAmount\": 0.0,\n  \"status\": 1\n}"
         },
         "url": {
           "raw": "http://localhost:9090/api/orders",
@@ -55,7 +55,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"id\": 1,\n  \"orderDate\": \"2023-08-01T12:00:00\",\n  \"status\": \"UPDATED\",\n  \"totalAmount\": 200.0,\n  \"customerId\": 1\n}"
+          "raw": "{\n  \"id\": 1,\n  \"orderDate\": \"2024-08-02T00:00:00\",\n  \"totalAmount\": 100.0,\n  \"status\": 2\n}"
         },
         "url": {
           "raw": "http://localhost:9090/api/orders/1",
@@ -81,21 +81,7 @@
       }
     },
     {
-      "name": "Get OrderItem by ID",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:9090/api/orderItems/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "9090",
-          "path": ["api", "orderItems", "1"]
-        }
-      }
-    },
-    {
-      "name": "Create OrderItem",
+      "name": "Add Order Item",
       "request": {
         "method": "POST",
         "header": [
@@ -106,51 +92,14 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"orderId\": 1,\n  \"productId\": 1,\n  \"quantity\": 10,\n  \"price\": 100.0\n}"
+          "raw": "{\n  \"orderId\": 1,\n  \"productId\": 2,\n  \"quantity\": 3\n}"
         },
         "url": {
-          "raw": "http://localhost:9090/api/orderItems",
+          "raw": "http://localhost:9090/api/orders/1/items",
           "protocol": "http",
           "host": ["localhost"],
           "port": "9090",
-          "path": ["api", "orderItems"]
-        }
-      }
-    },
-    {
-      "name": "Update OrderItem",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"id\": 1,\n  \"orderId\": 1,\n  \"productId\": 1,\n  \"quantity\": 20,\n  \"price\": 200.0\n}"
-        },
-        "url": {
-          "raw": "http://localhost:9090/api/orderItems/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "9090",
-          "path": ["api", "orderItems", "1"]
-        }
-      }
-    },
-    {
-      "name": "Delete OrderItem",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:9090/api/orderItems/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "9090",
-          "path": ["api", "orderItems", "1"]
+          "path": ["api", "orders", "1", "items"]
         }
       }
     }

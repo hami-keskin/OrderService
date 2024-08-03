@@ -1,6 +1,7 @@
 package com.example.orders.controller;
 
 import com.example.orders.dto.OrderDto;
+import com.example.orders.dto.OrderItemDto;
 import com.example.orders.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,5 +38,11 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
         orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{orderId}/items")
+    public ResponseEntity<OrderItemDto> addOrderItem(@PathVariable Integer orderId, @RequestBody OrderItemDto orderItemDto) {
+        OrderItemDto createdOrderItem = orderService.addOrderItem(orderId, orderItemDto);
+        return ResponseEntity.ok(createdOrderItem);
     }
 }

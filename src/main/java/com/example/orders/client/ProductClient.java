@@ -1,11 +1,13 @@
 package com.example.orders.client;
 
+import lombok.Data;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "product-service")
+@FeignClient(name = "product-service", url = "${feign.client.config.product-service.url}")
 public interface ProductClient {
     @GetMapping("/api/products/{id}")
-    Object getProductById(@PathVariable("id") Integer id);
+    ProductDto getProductById(@PathVariable Integer id);
 }
+

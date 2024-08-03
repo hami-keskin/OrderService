@@ -9,4 +9,5 @@ public class OrderItemDto {
     private Integer productId;
     private Integer quantity;
     private Double price;
+    private Double totalAmount;
 }
