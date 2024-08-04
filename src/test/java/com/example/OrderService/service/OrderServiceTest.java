@@ -1,7 +1,7 @@
 package com.example.OrderService.service;
 
-import com.example.OrderService.client.ProductClient;
 import com.example.OrderService.client.ProductDto;
+import com.example.OrderService.client.ProductServiceClient;
 import com.example.OrderService.dto.OrderDto;
 import com.example.OrderService.dto.OrderItemDto;
 import com.example.OrderService.entity.Order;
@@ -33,7 +33,7 @@ public class OrderServiceTest {
     private OrderItemRepository orderItemRepository;
     private OrderMapper orderMapper;
     private OrderItemMapper orderItemMapper;
-    private ProductClient productClient;
+    private ProductServiceClient productServiceClient;
 
     @BeforeEach
     public void setUp() {
@@ -41,9 +41,9 @@ public class OrderServiceTest {
         orderItemRepository = Mockito.mock(OrderItemRepository.class);
         orderMapper = Mockito.mock(OrderMapper.class);
         orderItemMapper = Mockito.mock(OrderItemMapper.class);
-        productClient = Mockito.mock(ProductClient.class);
+        productServiceClient = Mockito.mock(ProductServiceClient.class);
 
-        orderService = new OrderService(orderRepository, orderItemRepository, orderMapper, orderItemMapper, productClient);
+        orderService = new OrderService(orderRepository, orderItemRepository, orderMapper, orderItemMapper, productServiceClient);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class OrderServiceTest {
 
         ProductDto productDto = new ProductDto();
         productDto.setPrice(100.0);
-        when(productClient.getProductById(2)).thenReturn(productDto);
+        when(productServiceClient.getProductById(2)).thenReturn(productDto);
 
         OrderItemDto orderItemDto = new OrderItemDto();
         orderItemDto.setProductId(2);
@@ -152,7 +152,7 @@ public class OrderServiceTest {
 
         ProductDto productDto = new ProductDto();
         productDto.setPrice(100.0);
-        when(productClient.getProductById(2)).thenReturn(productDto);
+        when(productServiceClient.getProductById(2)).thenReturn(productDto);
 
         OrderItemDto orderItemDto = new OrderItemDto();
         orderItemDto.setQuantity(5);

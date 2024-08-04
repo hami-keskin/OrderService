@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "ProductService", url = "${feign.client.config.ProductService.url}")
-public interface ProductClient {
+public interface ProductServiceClient {
     @GetMapping("/api/products/{id}")
     ProductDto getProductById(@PathVariable Integer id);
 }

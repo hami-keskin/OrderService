@@ -1,7 +1,7 @@
 package com.example.OrderService.service;
 
-import com.example.OrderService.client.ProductClient;
 import com.example.OrderService.client.ProductDto;
+import com.example.OrderService.client.ProductServiceClient;
 import com.example.OrderService.dto.OrderDto;
 import com.example.OrderService.dto.OrderItemDto;
 import com.example.OrderService.entity.Order;
@@ -29,7 +29,7 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
-    private final ProductClient productClient;
+    private final ProductServiceClient productServiceClient;
 
     @Cacheable("order")
     public Optional<OrderDto> getOrderById(Integer id) {
@@ -143,7 +143,7 @@ public class OrderService {
     }
 
     private void updateOrderItemTotalAmount(OrderItem orderItem) {
-        ProductDto productDto = productClient.getProductById(orderItem.getProductId());
+        ProductDto productDto = productServiceClient.getProductById(orderItem.getProductId());
         orderItem.setPrice(productDto.getPrice());
         orderItem.setTotalAmount(productDto.getPrice() * orderItem.getQuantity());
     }
