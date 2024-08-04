@@ -1,4 +1,4 @@
-package com.example.orders.client;
+package com.example.OrderService.client;
 
 import lombok.Data;
 

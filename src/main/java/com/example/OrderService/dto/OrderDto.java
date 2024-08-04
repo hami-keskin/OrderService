@@ -1,4 +1,4 @@
-package com.example.orders.dto;
+package com.example.OrderService.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;

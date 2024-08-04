@@ -1,15 +1,15 @@
-package com.example.orders.service;
+package com.example.OrderService.service;
 
-import com.example.orders.client.ProductClient;
-import com.example.orders.client.ProductDto;
-import com.example.orders.dto.OrderDto;
-import com.example.orders.dto.OrderItemDto;
-import com.example.orders.entity.Order;
-import com.example.orders.entity.OrderItem;
-import com.example.orders.mapper.OrderItemMapper;
-import com.example.orders.mapper.OrderMapper;
-import com.example.orders.repository.OrderRepository;
-import com.example.orders.repository.OrderItemRepository;
+import com.example.OrderService.client.ProductClient;
+import com.example.OrderService.client.ProductDto;
+import com.example.OrderService.dto.OrderDto;
+import com.example.OrderService.dto.OrderItemDto;
+import com.example.OrderService.entity.Order;
+import com.example.OrderService.entity.OrderItem;
+import com.example.OrderService.mapper.OrderItemMapper;
+import com.example.OrderService.mapper.OrderMapper;
+import com.example.OrderService.repository.OrderRepository;
+import com.example.OrderService.repository.OrderItemRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

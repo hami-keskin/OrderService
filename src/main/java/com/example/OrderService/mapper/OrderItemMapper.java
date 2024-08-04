@@ -1,7 +1,7 @@
-package com.example.orders.mapper;
+package com.example.OrderService.mapper;
 
-import com.example.orders.dto.OrderItemDto;
-import com.example.orders.entity.OrderItem;
+import com.example.OrderService.dto.OrderItemDto;
+import com.example.OrderService.entity.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
