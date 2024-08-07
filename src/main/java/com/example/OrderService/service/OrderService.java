@@ -6,11 +6,13 @@ import com.example.OrderService.dto.OrderDto;
 import com.example.OrderService.dto.OrderItemDto;
 import com.example.OrderService.entity.Order;
 import com.example.OrderService.entity.OrderItem;
+import com.example.OrderService.exception.RecordNotFoundException;
 import com.example.OrderService.mapper.OrderItemMapper;
 import com.example.OrderService.mapper.OrderMapper;
 import com.example.OrderService.repository.OrderRepository;
 import com.example.OrderService.repository.OrderItemRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -34,7 +37,11 @@ public class OrderService {
     @Cacheable("order")
     public Optional<OrderDto> getOrderById(Integer id) {
         return orderRepository.findById(id)
-                .map(orderMapper::toDto);
+                .map(orderMapper::toDto)
+                .or(() -> {
+                    log.error("Order not found with id {}", id);
+                    throw new RecordNotFoundException("Order not found with id " + id);
+                });
     }
 
     @CachePut(value = "order", key = "#result.id")
@@ -113,12 +120,18 @@ public class OrderService {
 
     private Order findOrderById(Integer orderId) {
         return orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found with id " + orderId));
+                .orElseThrow(() -> {
+                    log.error("Order not found with id {}", orderId);
+                    return new RecordNotFoundException("Order not found with id " + orderId);
+                });
     }
 
     private OrderItem findOrderItemById(Integer orderItemId) {
         return orderItemRepository.findById(orderItemId)
-                .orElseThrow(() -> new IllegalArgumentException("Order item not found with id " + orderItemId));
+                .orElseThrow(() -> {
+                    log.error("Order item not found with id {}", orderItemId);
+                    return new RecordNotFoundException("Order item not found with id " + orderItemId);
+                });
     }
 
     private OrderItem findOrCreateOrderItem(Order order, OrderItemDto orderItemDto) {
