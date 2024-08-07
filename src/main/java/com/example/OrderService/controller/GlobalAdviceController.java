@@ -6,20 +6,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @ControllerAdvice
 @Slf4j
 public class GlobalAdviceController {
 
-    @ExceptionHandler(RecordNotFoundException.class)
-    public ResponseEntity<String> handleRecordNotFoundException(RecordNotFoundException ex) {
-        log.error("RecordNotFoundException: {}", ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGeneralException(Exception ex) {
-        log.error("Exception: {}", ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    @ResponseBody
+    public ResponseEntity<String> exceptionHandler(Throwable exception) {
+        log.error("Exception: {}", exception.getMessage());
+        if (exception instanceof RecordNotFoundException) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        } else if (exception instanceof IllegalArgumentException) {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

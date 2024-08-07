@@ -36,6 +36,7 @@ public class OrderService {
 
     @Cacheable("order")
     public Optional<OrderDto> getOrderById(Integer id) {
+        log.info("Getting order by id: {}", id);
         return orderRepository.findById(id)
                 .map(orderMapper::toDto)
                 .or(() -> {
@@ -46,6 +47,7 @@ public class OrderService {
 
     @CachePut(value = "order", key = "#result.id")
     public OrderDto createOrder(OrderDto orderDto) {
+        log.info("Creating order: {}", orderDto);
         Order order = orderMapper.toEntity(orderDto);
         order.setOrderDate(LocalDateTime.now());
         order.setStatus(1);
@@ -56,6 +58,7 @@ public class OrderService {
 
     @CachePut(value = "order", key = "#orderDto.id")
     public OrderDto updateOrder(Integer id, OrderDto orderDto) {
+        log.info("Updating order with id: {}", id);
         Order order = orderMapper.toEntity(orderDto);
         order.setId(id);
         order = orderRepository.save(order);
@@ -64,11 +67,13 @@ public class OrderService {
 
     @CacheEvict(value = "order", key = "#id")
     public void deleteOrder(Integer id) {
+        log.info("Deleting order with id: {}", id);
         orderRepository.deleteById(id);
     }
 
     @Transactional
     public OrderItemDto addOrderItem(Integer orderId, OrderItemDto orderItemDto) {
+        log.info("Adding order item to order with id: {}", orderId);
         Order order = findOrderById(orderId);
         OrderItem orderItem = findOrCreateOrderItem(order, orderItemDto);
         updateOrderTotalAmount(order, orderItem.getTotalAmount());
@@ -81,6 +86,7 @@ public class OrderService {
 
     @Transactional
     public OrderItemDto updateOrderItem(Integer orderId, Integer orderItemId, OrderItemDto orderItemDto) {
+        log.info("Updating order item with id: {}", orderItemId);
         Order order = findOrderById(orderId);
         OrderItem orderItem = findOrderItemById(orderItemId);
 
@@ -99,6 +105,7 @@ public class OrderService {
 
     @Transactional
     public void deleteOrderItem(Integer orderId, Integer orderItemId) {
+        log.info("Deleting order item with id: {}", orderItemId);
         Order order = findOrderById(orderId);
         OrderItem orderItem = findOrderItemById(orderItemId);
 
@@ -112,6 +119,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<OrderItemDto> getOrderItemsByOrderId(Integer orderId) {
+        log.info("Getting order items for order with id: {}", orderId);
         Order order = findOrderById(orderId);
         return order.getOrderItems().stream()
                 .map(orderItemMapper::toDto)
@@ -119,6 +127,7 @@ public class OrderService {
     }
 
     private Order findOrderById(Integer orderId) {
+        log.info("Finding order by id: {}", orderId);
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> {
                     log.error("Order not found with id {}", orderId);
@@ -127,6 +136,7 @@ public class OrderService {
     }
 
     private OrderItem findOrderItemById(Integer orderItemId) {
+        log.info("Finding order item by id: {}", orderItemId);
         return orderItemRepository.findById(orderItemId)
                 .orElseThrow(() -> {
                     log.error("Order item not found with id {}", orderItemId);
