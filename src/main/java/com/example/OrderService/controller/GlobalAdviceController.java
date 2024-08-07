@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.time.LocalDateTime;
-
 @ControllerAdvice
 @Slf4j
 public class GlobalAdviceController {
@@ -28,7 +26,7 @@ public class GlobalAdviceController {
         } else {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
-        ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(), status.value(), exception.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(exception.getMessage());
         return new ResponseEntity<>(errorResponse, status);
     }
 }
@@ -36,7 +34,5 @@ public class GlobalAdviceController {
 @Getter
 @RequiredArgsConstructor
 class ErrorResponse {
-    private final LocalDateTime timestamp;
-    private final int status;
     private final String error;
 }
