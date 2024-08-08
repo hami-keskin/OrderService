@@ -1,5 +1,6 @@
 package com.example.OrderService.aspect;
 
+import com.example.OrderService.annotation.RequestLogger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -13,12 +14,13 @@ import org.springframework.stereotype.Component;
 public class LoggerAspect {
     private static final Logger logger = LoggerFactory.getLogger(LoggerAspect.class);
 
-    @Pointcut("execution(public * com.example..*(..))")
-    private void publicMethods() {
-        // Pointcut for all public methods in the application
+    // Pointcut tanımlaması: @RequestLogger anotasyonu eklenmiş metotları hedef alır
+    @Pointcut("@annotation(com.example.OrderService.annotation.RequestLogger)")
+    private void requestLoggerMethods() {
     }
 
-    @Around("publicMethods()")
+    // Around advice: Hedef metodun öncesinde ve sonrasında çalışır
+    @Around("requestLoggerMethods()")
     public Object logRequestResponse(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
 

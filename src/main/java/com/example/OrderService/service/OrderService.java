@@ -1,5 +1,6 @@
 package com.example.OrderService.service;
 
+import com.example.OrderService.annotation.RequestLogger;
 import com.example.OrderService.client.ProductDto;
 import com.example.OrderService.client.ProductServiceClient;
 import com.example.OrderService.dto.OrderDto;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@RequestLogger
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
