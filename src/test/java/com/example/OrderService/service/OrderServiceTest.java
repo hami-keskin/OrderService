@@ -43,7 +43,7 @@ public class OrderServiceTest {
         orderItemMapper = Mockito.mock(OrderItemMapper.class);
         productServiceClient = Mockito.mock(ProductServiceClient.class);
 
-        orderService = new OrderService(orderRepository, orderItemRepository, orderMapper, orderItemMapper, productServiceClient);
+        orderService = new OrderService(orderRepository, orderItemRepository, orderMapper, orderItemMapper, productServiceClient, self);  // self ekleyin
     }
 
     @Test
