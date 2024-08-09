@@ -1,13 +1,11 @@
 package com.example.OrderService.controller;
 
 import com.example.OrderService.dto.OrderDto;
-import com.example.OrderService.dto.OrderItemDto;
 import com.example.OrderService.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -38,29 +36,5 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
         orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/{orderId}/items")
-    public ResponseEntity<OrderItemDto> addOrderItem(@PathVariable Integer orderId, @RequestBody OrderItemDto orderItemDto) {
-        OrderItemDto createdOrderItem = orderService.addOrderItem(orderId, orderItemDto);
-        return ResponseEntity.ok(createdOrderItem);
-    }
-
-    @PutMapping("/{orderId}/items/{orderItemId}")
-    public ResponseEntity<OrderItemDto> updateOrderItem(@PathVariable Integer orderId, @PathVariable Integer orderItemId, @RequestBody OrderItemDto orderItemDto) {
-        OrderItemDto updatedOrderItem = orderService.updateOrderItem(orderId, orderItemId, orderItemDto);
-        return ResponseEntity.ok(updatedOrderItem);
-    }
-
-    @DeleteMapping("/{orderId}/items/{orderItemId}")
-    public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer orderId, @PathVariable Integer orderItemId) {
-        orderService.deleteOrderItem(orderId, orderItemId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{orderId}/items")
-    public ResponseEntity<List<OrderItemDto>> getOrderItemsByOrderId(@PathVariable Integer orderId) {
-        List<OrderItemDto> orderItems = orderService.getOrderItemsByOrderId(orderId);
-        return ResponseEntity.ok(orderItems);
     }
 }
