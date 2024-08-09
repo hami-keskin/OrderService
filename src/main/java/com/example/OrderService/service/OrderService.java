@@ -36,8 +36,6 @@ public class OrderService {
     private final OrderItemMapper orderItemMapper;
     private final ProductServiceClient productServiceClient;
 
-    private final OrderService self;
-
     @Cacheable("order")
     public Optional<OrderDto> getOrderById(Integer id) {
         log.info("Getting order by id: {}", id);
@@ -192,7 +190,7 @@ public class OrderService {
 
     private void handleQuantityZero(Order order, OrderItemDto orderItemDto, Integer orderItemId) {
         if (orderItemDto.getQuantity() <= 0) {
-            self.deleteOrderItem(order.getId(), orderItemId);
+            deleteOrderItem(order.getId(), orderItemId);
         }
     }
 

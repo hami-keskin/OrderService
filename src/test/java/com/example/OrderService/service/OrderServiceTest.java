@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class OrderServiceTest {
 
     private OrderService orderService;
@@ -34,6 +36,8 @@ public class OrderServiceTest {
     private OrderMapper orderMapper;
     private OrderItemMapper orderItemMapper;
     private ProductServiceClient productServiceClient;
+    private OrderService self;  // self referansı eklendi
+
 
     @BeforeEach
     public void setUp() {
@@ -42,8 +46,10 @@ public class OrderServiceTest {
         orderMapper = Mockito.mock(OrderMapper.class);
         orderItemMapper = Mockito.mock(OrderItemMapper.class);
         productServiceClient = Mockito.mock(ProductServiceClient.class);
+        self = Mockito.mock(OrderService.class);  // self referansını mock'layın
 
-        orderService = new OrderService(orderRepository, orderItemRepository, orderMapper, orderItemMapper, productServiceClient, self);  // self ekleyin
+
+        orderService = new OrderService(orderRepository, orderItemRepository, orderMapper, orderItemMapper, productServiceClient);  // self ekleyin
     }
 
     @Test
