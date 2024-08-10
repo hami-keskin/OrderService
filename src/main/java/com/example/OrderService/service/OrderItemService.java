@@ -84,7 +84,7 @@ public class OrderItemService {
                 .collect(Collectors.toList());
     }
 
-    private OrderItem findOrderItemById(Integer orderItemId) {
+    OrderItem findOrderItemById(Integer orderItemId) {
         log.info("Finding order item by id: {}", orderItemId);
         return orderItemRepository.findById(orderItemId)
                 .orElseThrow(() -> {

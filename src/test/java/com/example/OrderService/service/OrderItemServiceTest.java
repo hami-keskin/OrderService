@@ -6,6 +6,7 @@ import com.example.OrderService.dto.OrderDto;
 import com.example.OrderService.dto.OrderItemDto;
 import com.example.OrderService.entity.Order;
 import com.example.OrderService.entity.OrderItem;
+import com.example.OrderService.exception.RecordNotFoundException;
 import com.example.OrderService.mapper.OrderItemMapper;
 import com.example.OrderService.mapper.OrderMapper;
 import com.example.OrderService.repository.OrderItemRepository;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -147,4 +149,43 @@ public class OrderItemServiceTest {
 
         assertThat(orderItems).isNotEmpty();
     }
+
+    @Test
+    public void testAddOrderItemWithNullOrderDto() {
+        OrderItemDto orderItemDto = new OrderItemDto();
+        orderItemDto.setProductId(2);
+        orderItemDto.setQuantity(3);
+
+        assertThrows(NullPointerException.class, () -> {
+            orderItemService.addOrderItem(null, orderItemDto);
+        });
+    }
+
+    @Test
+    public void testHandleQuantityZero() {
+        OrderDto orderDto = new OrderDto();
+        orderDto.setId(1);
+
+        OrderItemDto orderItemDto = new OrderItemDto();
+        orderItemDto.setQuantity(0);  // Miktar 0 veya daha düşük
+
+        when(orderItemRepository.findById(1)).thenReturn(Optional.empty()); // findById çağrısı boş Optional dönecek
+
+        // Beklenen istisnanın fırlatıldığını kontrol et
+        assertThrows(RecordNotFoundException.class, () -> {
+            orderItemService.updateOrderItem(orderDto, 1, orderItemDto);
+        });
+    }
+
+
+
+    @Test
+    public void testFindOrderItemByIdNotFound() {
+        when(orderItemRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> {
+            orderItemService.findOrderItemById(1);
+        });
+    }
+
 }
