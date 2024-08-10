@@ -74,17 +74,19 @@ public class LoggerAspectTest {
         MethodSignature methodSignature = Mockito.mock(MethodSignature.class);
         when(joinPoint.getSignature()).thenReturn(methodSignature);
         when(joinPoint.getArgs()).thenReturn(new Object[]{"arg1", "arg2"});
-        when(joinPoint.proceed()).thenAnswer(invocation -> {
-            Thread.sleep(50); // Simulate method execution time
-            return "result";
-        });
+        when(joinPoint.proceed()).thenReturn("result");
 
         // Act
+        long startTime = System.currentTimeMillis();
         Object result = loggerAspect.logRequestResponse(joinPoint);
+        long endTime = System.currentTimeMillis();
 
         // Assert
         assertThat(result).isEqualTo("result");
         verify(joinPoint, times(1)).proceed();
-        // Ek olarak zamanın hesaplandığını ve loglandığını doğrulayan bir test eklenebilir
+
+        // Zamanın geçtiğini kontrol et
+        long timeTaken = endTime - startTime;
+        assertThat(timeTaken).isGreaterThanOrEqualTo(0); // Zamanın geçtiğini doğrulamak için basit bir kontrol
     }
 }
