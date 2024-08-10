@@ -17,7 +17,7 @@ public class OrderItemController {
     private final OrderItemService orderItemService;
     private final OrderService orderService;
 
-    private static final String ORDER_NOT_FOUND_MESSAGE = "Order not found"; // Sabit tanımlandı
+    static final String ORDER_NOT_FOUND_MESSAGE = "Order not found"; // Sabit tanımlandı
 
     @PostMapping
     public ResponseEntity<OrderItemDto> addOrderItem(@PathVariable Integer orderId, @RequestBody OrderItemDto orderItemDto) {
