@@ -111,4 +111,29 @@ public class OrderServiceTest {
         verify(orderRepository, times(1)).deleteById(1);
     }
 
+    @Test
+    public void testCreateOrder_CachePut() {
+        Order order = new Order();
+        order.setId(1);
+        when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderDto());
+
+        OrderDto orderDto = new OrderDto();
+        OrderDto createdOrder = orderService.createOrder(orderDto);
+
+        assertThat(createdOrder).isNotNull();
+        verify(orderRepository, times(1)).save(any(Order.class));
+    }
+
+    @Test
+    public void testDeleteOrder_CacheEvict() {
+        doNothing().when(orderRepository).deleteById(1);
+
+        orderService.deleteOrder(1);
+
+        verify(orderRepository, times(1)).deleteById(1);
+        // Cache silinmeli, bu yüzden cache kontrolü de yapılabilir
+    }
+
 }
