@@ -2,6 +2,7 @@ package com.example.OrderService.service;
 
 import com.example.OrderService.dto.OrderDto;
 import com.example.OrderService.entity.Order;
+import com.example.OrderService.exception.RecordNotFoundException;
 import com.example.OrderService.mapper.OrderMapper;
 import com.example.OrderService.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -86,4 +88,27 @@ public class OrderServiceTest {
 
         verify(orderRepository, times(1)).deleteById(1);
     }
+
+    @Test
+    public void testGetOrderById_NotFound() {
+        when(orderRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> {
+            orderService.getOrderById(1);
+        });
+
+        verify(orderRepository, times(1)).findById(1);
+    }
+
+    @Test
+    public void testDeleteOrder_NotFound() {
+        doThrow(new RecordNotFoundException("Order not found with id 1")).when(orderRepository).deleteById(1);
+
+        assertThrows(RecordNotFoundException.class, () -> {
+            orderService.deleteOrder(1);
+        });
+
+        verify(orderRepository, times(1)).deleteById(1);
+    }
+
 }
