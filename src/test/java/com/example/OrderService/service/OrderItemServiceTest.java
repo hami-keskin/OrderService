@@ -39,8 +39,11 @@ public class OrderItemServiceTest {
         productServiceClient = Mockito.mock(ProductServiceClient.class);
         orderMapper = Mockito.mock(OrderMapper.class);
 
-        orderItemService = new OrderItemService(orderItemRepository, orderItemMapper, orderMapper, productServiceClient);
+        // Doğrudan instance oluşturmak yerine mock yaparak inject ediyoruz
+        orderItemService = Mockito.spy(new OrderItemService(orderItemRepository, orderItemMapper, orderMapper, productServiceClient));
+        Mockito.doReturn(orderItemService).when(orderItemService).getSelf();
     }
+
 
     @Test
     public void testAddOrderItem() {

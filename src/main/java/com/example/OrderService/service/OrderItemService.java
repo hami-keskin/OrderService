@@ -28,6 +28,11 @@ public class OrderItemService {
     private final OrderMapper orderMapper;
     private final ProductServiceClient productServiceClient;
 
+    // Artık self-injection'a gerek yok, direkt bu sınıf üzerinden çağıracağız
+    protected OrderItemService getSelf() {
+        return this;
+    }
+
     @Transactional
     public OrderItemDto addOrderItem(OrderDto orderDto, OrderItemDto orderItemDto) {
         log.info("Adding order item to order with id: {}", orderDto.getId());
@@ -46,7 +51,7 @@ public class OrderItemService {
         OrderItem orderItem = findOrderItemById(orderItemId);
 
         validateOrderItemBelongsToOrder(order, orderItem);
-        handleQuantityZero(order, orderItemDto, orderItemId);
+        getSelf().handleQuantityZero(orderDto, orderItemDto, orderItemId);  // Self-invocation
 
         double oldTotalAmount = Optional.ofNullable(orderItem.getTotalAmount()).orElse(0.0);
         updateOrderItemDetails(orderItem, orderItemDto);
@@ -130,9 +135,9 @@ public class OrderItemService {
         }
     }
 
-    private void handleQuantityZero(Order order, OrderItemDto orderItemDto, Integer orderItemId) {
+    private void handleQuantityZero(OrderDto orderDto, OrderItemDto orderItemDto, Integer orderItemId) {
         if (orderItemDto.getQuantity() <= 0) {
-            deleteOrderItem(orderMapper.toDto(order), orderItemId);  // Self-invocation via this service
+            getSelf().deleteOrderItem(orderDto, orderItemId);  // Self-invocation via injected dependency
         }
     }
 }
