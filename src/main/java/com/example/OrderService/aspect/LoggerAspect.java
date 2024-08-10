@@ -1,11 +1,11 @@
 package com.example.OrderService.aspect;
 
 import com.example.OrderService.annotation.RequestLogger;
+import com.example.OrderService.exception.MethodExecutionException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -44,7 +44,9 @@ public class LoggerAspect {
         } catch (Throwable throwable) {
             // Hata durumunda loglama
             logger.error("Exception in method: {} with cause: {}", joinPoint.getSignature(), throwable.getCause() != null ? throwable.getCause() : "NULL");
-            throw throwable;
+
+            // Özel bir istisna fırlatma
+            throw new MethodExecutionException("Error occurred while executing method: " + joinPoint.getSignature(), throwable);
         }
 
         long timeTaken = System.currentTimeMillis() - startTime;
