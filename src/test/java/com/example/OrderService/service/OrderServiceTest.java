@@ -7,6 +7,7 @@ import com.example.OrderService.mapper.OrderMapper;
 import com.example.OrderService.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -47,12 +48,37 @@ public class OrderServiceTest {
     }
 
     @Test
+    public void testGetOrderById_NotFound() {
+        when(orderRepository.findById(1)).thenReturn(Optional.empty());
+
+        assertThrows(RecordNotFoundException.class, () -> {
+            orderService.getOrderById(1);
+        });
+
+        verify(orderRepository, times(1)).findById(1);
+    }
+
+    @Test
     public void testCreateOrder() {
         Order order = new Order();
         order.setOrderDate(LocalDateTime.now());
         order.setTotalAmount(0.0);
         order.setStatus(1);
 
+        when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderDto());
+
+        OrderDto orderDto = new OrderDto();
+        OrderDto createdOrder = orderService.createOrder(orderDto);
+
+        assertThat(createdOrder).isNotNull();
+        verify(orderRepository, times(1)).save(any(Order.class));
+    }
+
+    @Test
+    public void testCreateOrderWithEmptyDto() {
+        Order order = new Order();
         when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
         when(orderRepository.save(any(Order.class))).thenReturn(order);
         when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderDto());
@@ -90,17 +116,6 @@ public class OrderServiceTest {
     }
 
     @Test
-    public void testGetOrderById_NotFound() {
-        when(orderRepository.findById(1)).thenReturn(Optional.empty());
-
-        assertThrows(RecordNotFoundException.class, () -> {
-            orderService.getOrderById(1);
-        });
-
-        verify(orderRepository, times(1)).findById(1);
-    }
-
-    @Test
     public void testDeleteOrder_NotFound() {
         doThrow(new RecordNotFoundException("Order not found with id 1")).when(orderRepository).deleteById(1);
 
@@ -133,7 +148,61 @@ public class OrderServiceTest {
         orderService.deleteOrder(1);
 
         verify(orderRepository, times(1)).deleteById(1);
-        // Cache silinmeli, bu yüzden cache kontrolü de yapılabilir
     }
 
+    @Test
+    public void testUpdateOrder_CachePut() {
+        Order order = new Order();
+        order.setId(1);
+
+        when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(orderMapper.toDto(any(Order.class))).thenReturn(new OrderDto());
+
+        OrderDto orderDto = new OrderDto();
+        OrderDto updatedOrder = orderService.updateOrder(1, orderDto);
+
+        assertThat(updatedOrder).isNotNull();
+        verify(orderRepository, times(1)).save(any(Order.class));
+    }
+
+    @Test
+    public void testCreateOrder_withArgumentCaptor() {
+        OrderDto orderDto = new OrderDto();
+        orderDto.setId(1);
+
+        Order order = new Order();
+        order.setId(1);
+
+        when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(orderMapper.toDto(any(Order.class))).thenReturn(orderDto);
+
+        orderService.createOrder(orderDto);
+
+        ArgumentCaptor<Order> orderArgumentCaptor = ArgumentCaptor.forClass(Order.class);
+        verify(orderRepository).save(orderArgumentCaptor.capture());
+        Order capturedOrder = orderArgumentCaptor.getValue();
+        assertThat(capturedOrder.getId()).isEqualTo(1);
+    }
+
+    @Test
+    public void testUpdateOrder_withArgumentCaptor() {
+        OrderDto orderDto = new OrderDto();
+        orderDto.setId(1);
+
+        Order order = new Order();
+        order.setId(1);
+
+        when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+        when(orderMapper.toDto(any(Order.class))).thenReturn(orderDto);
+
+        orderService.updateOrder(1, orderDto);
+
+        ArgumentCaptor<Order> orderArgumentCaptor = ArgumentCaptor.forClass(Order.class);
+        verify(orderRepository).save(orderArgumentCaptor.capture());
+        Order capturedOrder = orderArgumentCaptor.getValue();
+        assertThat(capturedOrder.getId()).isEqualTo(1);
+    }
 }
