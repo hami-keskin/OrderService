@@ -7,6 +7,7 @@ import com.example.OrderService.service.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
@@ -30,6 +31,64 @@ public class OrderItemControllerTest {
         orderItemService = Mockito.mock(OrderItemService.class);
         orderService = Mockito.mock(OrderService.class);
         orderItemController = new OrderItemController(orderItemService, orderService);
+    }
+
+    @Test
+    public void testAddOrderItem_Success() {
+        OrderDto orderDto = new OrderDto();
+        OrderItemDto orderItemDto = new OrderItemDto();
+        when(orderService.getOrderById(anyInt())).thenReturn(Optional.of(orderDto));
+        when(orderItemService.addOrderItem(any(OrderDto.class), any(OrderItemDto.class))).thenReturn(orderItemDto);
+
+        ResponseEntity<OrderItemDto> response = orderItemController.addOrderItem(1, orderItemDto);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(orderItemDto);
+        verify(orderService, times(1)).getOrderById(1);
+        verify(orderItemService, times(1)).addOrderItem(any(OrderDto.class), any(OrderItemDto.class));
+    }
+
+    @Test
+    public void testUpdateOrderItem_Success() {
+        OrderDto orderDto = new OrderDto();
+        OrderItemDto orderItemDto = new OrderItemDto();
+        when(orderService.getOrderById(anyInt())).thenReturn(Optional.of(orderDto));
+        when(orderItemService.updateOrderItem(any(OrderDto.class), anyInt(), any(OrderItemDto.class))).thenReturn(orderItemDto);
+
+        ResponseEntity<OrderItemDto> response = orderItemController.updateOrderItem(1, 1, orderItemDto);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(orderItemDto);
+        verify(orderService, times(1)).getOrderById(1);
+        verify(orderItemService, times(1)).updateOrderItem(any(OrderDto.class), anyInt(), any(OrderItemDto.class));
+    }
+
+    @Test
+    public void testDeleteOrderItem_Success() {
+        OrderDto orderDto = new OrderDto();
+        when(orderService.getOrderById(anyInt())).thenReturn(Optional.of(orderDto));
+        doNothing().when(orderItemService).deleteOrderItem(any(OrderDto.class), anyInt());
+
+        ResponseEntity<Void> response = orderItemController.deleteOrderItem(1, 1);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        verify(orderService, times(1)).getOrderById(1);
+        verify(orderItemService, times(1)).deleteOrderItem(any(OrderDto.class), anyInt());
+    }
+
+    @Test
+    public void testGetOrderItemsByOrderId_Success() {
+        OrderDto orderDto = new OrderDto();
+        List<OrderItemDto> orderItems = Arrays.asList(new OrderItemDto(), new OrderItemDto());
+        when(orderService.getOrderById(anyInt())).thenReturn(Optional.of(orderDto));
+        when(orderItemService.getOrderItemsByOrderId(any(OrderDto.class))).thenReturn(orderItems);
+
+        ResponseEntity<List<OrderItemDto>> response = orderItemController.getOrderItemsByOrderId(1);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(orderItems);
+        verify(orderService, times(1)).getOrderById(1);
+        verify(orderItemService, times(1)).getOrderItemsByOrderId(any(OrderDto.class));
     }
 
     @Test
