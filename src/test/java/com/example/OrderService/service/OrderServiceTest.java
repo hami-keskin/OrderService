@@ -143,11 +143,16 @@ public class OrderServiceTest {
 
     @Test
     public void testDeleteOrder_CacheEvict() {
-        doNothing().when(orderRepository).deleteById(1);
+        Integer orderId = 1;
 
-        orderService.deleteOrder(1);
+        doNothing().when(orderRepository).deleteById(orderId);
 
-        verify(orderRepository, times(1)).deleteById(1);
+        orderService.deleteOrder(orderId);
+
+        ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(orderRepository).deleteById(idCaptor.capture());
+        assertThat(idCaptor.getValue()).isEqualTo(orderId);
+        // Cache'in temizlendiğini doğrulayan ek bir kontrol eklenebilir
     }
 
     @Test
@@ -190,9 +195,11 @@ public class OrderServiceTest {
     public void testUpdateOrder_withArgumentCaptor() {
         OrderDto orderDto = new OrderDto();
         orderDto.setId(1);
+        orderDto.setStatus(2); // Yeni bir alan güncellemesi
 
         Order order = new Order();
         order.setId(1);
+        order.setStatus(2); // Bu değeri set ettik
 
         when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
         when(orderRepository.save(any(Order.class))).thenReturn(order);
@@ -204,5 +211,6 @@ public class OrderServiceTest {
         verify(orderRepository).save(orderArgumentCaptor.capture());
         Order capturedOrder = orderArgumentCaptor.getValue();
         assertThat(capturedOrder.getId()).isEqualTo(1);
+        assertThat(capturedOrder.getStatus()).isEqualTo(2); // Beklenen değer doğrulanıyor
     }
 }
